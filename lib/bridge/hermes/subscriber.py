@@ -121,7 +121,7 @@ class EventBusSubscriber:
                 event_data = json.load(f)
             
             # 创建事件对象
-            from hermes_bridge.events import ClawshellEvent
+            from .events import ClawshellEvent
             event = ClawshellEvent(**event_data)
             
             # 调用回调
@@ -198,7 +198,7 @@ if __name__ == "__main__":
     test_path = Path('/tmp/test_eventbus')
     test_path.mkdir(exist_ok=True)
     
-    from hermes_bridge.events import ClawshellEvent
+    from .events import ClawshellEvent
     
     test_event = ClawshellEvent(
         event_id="test-001",

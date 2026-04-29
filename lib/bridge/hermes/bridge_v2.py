@@ -13,18 +13,18 @@ from pathlib import Path
 from datetime import datetime
 from typing import Dict, List, Optional
 
-from hermes_bridge.events import (
+from .events import (
     ClawshellEvent, HermesEvent,
     TaskType, Priority, Environment, ResponseMode,
     EventType, priority_to_response_time
 )
-from hermes_bridge.classifier import PriorityClassifier
-from hermes_bridge.matcher import ResponseModeMatcher
-from hermes_bridge.subscriber import EventBusSubscriber
-from hermes_bridge.publisher import EventBusPublisher
-from hermes_bridge.queue import MessageQueue
-from hermes_bridge.trigger_config import TriggerConfig
-from hermes_bridge.scenario_integrator import HermesScenarioIntegrator
+from .classifier import PriorityClassifier
+from .matcher import ResponseModeMatcher
+from .subscriber import EventBusSubscriber
+from .publisher import EventBusPublisher
+from .queue import MessageQueue
+from .trigger_config import TriggerConfig
+from .scenario_integrator import HermesScenarioIntegrator
 
 
 class HermesBridgeV2:

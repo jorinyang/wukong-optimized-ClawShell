@@ -65,7 +65,7 @@ class EventBusPublisher:
         返回:
             str: 事件ID
         """
-        from hermes_bridge.events import HermesEvent
+        from .events import HermesEvent
         
         event = HermesEvent(
             event_id=str(uuid.uuid4()),

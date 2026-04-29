@@ -9,7 +9,7 @@
 import json
 from pathlib import Path
 from typing import Dict, Optional, Tuple
-from hermes_bridge.events import (
+from .events import (
     TaskType, Priority, Environment, 
     ClawshellEvent, identify_task_type
 )

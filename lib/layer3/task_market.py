@@ -16,7 +16,7 @@ from dataclasses import dataclass, field, asdict
 from enum import Enum
 from threading import Lock
 
-from swarm.node_registry import NodeRegistry, Node, NodeType, NodeStatus
+from lib.layer4.swarm import NodeRegistry, Node, NodeType, NodeStatus
 
 logger = logging.getLogger(__name__)
 

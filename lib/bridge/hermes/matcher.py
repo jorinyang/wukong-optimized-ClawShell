@@ -8,7 +8,7 @@
 
 import json
 from typing import Dict, List, Tuple
-from hermes_bridge.events import (
+from .events import (
     TaskType, Priority, Environment, 
     ResponseMode, ClawshellEvent
 )

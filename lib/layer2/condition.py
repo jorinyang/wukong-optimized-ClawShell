@@ -17,7 +17,7 @@ from enum import Enum
 from threading import Lock
 import operator
 
-from .schema import Event, EventType
+from lib.core.eventbus.schema import Event, EventType
 
 logger = logging.getLogger(__name__)
 

@@ -1,7 +1,18 @@
 """
-Detector Module - 检测模块
-==========================
-用于: Swarm故障检测, 策略违规检测, 事件异常检测
+Detector 模块 - 环境检测套件
+============================
+
+提供框架检测、依赖检测、持久层检测和外部工具检测功能。
 """
 
-__all__ = []
+from .framework_detector import FrameworkDetector
+from .dependency_checker import DependencyChecker
+from .persistence_detector import PersistenceDetector
+from .external_detector import ExternalDetector
+
+__all__ = [
+    "FrameworkDetector",
+    "DependencyChecker", 
+    "PersistenceDetector",
+    "ExternalDetector",
+]

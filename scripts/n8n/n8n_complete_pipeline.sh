@@ -4,7 +4,7 @@
 # 支持 PUB部署 → DAT分析 → LIB归档 → 结果通知
 #
 
-LOG_FILE="/Users/yangyang/.openclaw/logs/n8n_complete_pipeline.log"
+LOG_FILE="${CLAWSHELL_HOME:-$HOME/.clawshell}/logs/n8n_complete_pipeline.log"
 HTTP_SERVER="http://localhost:5680"
 
 log() {

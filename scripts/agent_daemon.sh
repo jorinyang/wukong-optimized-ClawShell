@@ -5,13 +5,13 @@
 
 # 设置PATH（launchd环境变量有限）
 export PATH="/usr/local/bin:/usr/local/opt/node@22/bin:/usr/bin:/bin:/usr/sbin:/sbin"
-export HOME="/Users/yangyang"
+export HOME="$HOME"
 
 AGENTS=("lab" "dev" "doc" "pub" "lib" "dat")
 INTERVAL_MINUTES=25
-LOG_FILE="/Users/yangyang/.openclaw/workspace/shared/agent_daemon.log"
-PID_FILE="/Users/yangyang/.openclaw/workspace/shared/agent_daemon.pid"
-LOCK_FILE="/Users/yangyang/.openclaw/workspace/shared/agent_daemon.lock"
+LOG_FILE="${CLAWSHELL_HOME:-$HOME/.clawshell}/workspace/shared/agent_daemon.log"
+PID_FILE="${CLAWSHELL_HOME:-$HOME/.clawshell}/workspace/shared/agent_daemon.pid"
+LOCK_FILE="${CLAWSHELL_HOME:-$HOME/.clawshell}/workspace/shared/agent_daemon.lock"
 
 log() {
     echo "[$(date '+%Y-%m-%d %H:%M:%S')] $1" >> "$LOG_FILE"

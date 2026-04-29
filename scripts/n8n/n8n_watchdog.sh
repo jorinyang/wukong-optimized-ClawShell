@@ -4,7 +4,7 @@
 # 每5分钟检查一次，如果服务不可用则启动
 #
 
-LOG_FILE="/Users/yangyang/.openclaw/logs/n8n_watchdog.log"
+LOG_FILE="${CLAWSHELL_HOME:-$HOME/.clawshell}/logs/n8n_watchdog.log"
 N8N_HTTP_PORT="5680"
 
 log() {
@@ -19,8 +19,8 @@ check_http_server() {
 
 start_http_server() {
     log "HTTP服务器未运行，正在启动..."
-    cd /Users/yangyang/n8n/scripts
-    nohup python3 n8n_http_server.py 5680 >> /Users/yangyang/.openclaw/logs/n8n_server.log 2>&1 &
+    cd $HOME/n8n/scripts
+    nohup python3 n8n_http_server.py 5680 >> ${CLAWSHELL_HOME:-$HOME/.clawshell}/logs/n8n_server.log 2>&1 &
     sleep 2
     
     if check_http_server; then

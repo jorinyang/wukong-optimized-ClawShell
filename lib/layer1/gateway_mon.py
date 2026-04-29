@@ -295,7 +295,7 @@ class RepairEngine:
         from pathlib import Path
         from datetime import datetime
         
-        agent_file = Path("/Users/yangyang/.openclaw/workspace/shared/agent-status.json")
+        agent_file = Path("${CLAWSHELL_HOME:-$HOME/.clawshell}/workspace/shared/agent-status.json")
         
         if agent_file.exists():
             with open(agent_file) as f:
@@ -365,7 +365,7 @@ class RepairEngine:
     def _repair_build_heritage_package(self, issue) -> str:
         """构建传承包"""
         import sys
-        sys.path.insert(0, '/Users/yangyang/.openclaw/clawshell')
+        sys.path.insert(0, '${CLAWSHELL_HOME:-$HOME/.clawshell}/clawshell')
         from heritage import HeritageManager
         
         hm = HeritageManager()

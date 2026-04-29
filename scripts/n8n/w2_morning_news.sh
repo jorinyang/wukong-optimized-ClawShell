@@ -16,7 +16,7 @@ echo "[W2] 查询任务队列..."
 TASK_STATUS=$(python3 << 'PYEOF'
 import json
 try:
-    with open('/Users/yangyang/.openclaw/workspace/shared/task-queue.json') as f:
+    with open('${CLAWSHELL_HOME:-$HOME/.clawshell}/workspace/shared/task-queue.json') as f:
         d = json.load(f)
     tasks = d.get('tasks', [])
     pending = [t for t in tasks if t.get('status') == 'pending']
@@ -40,14 +40,14 @@ ${MEMOS_PLAN:-暂无计划}
 ${TASK_STATUS:-无法读取}
 
 ## 健康度
-$(/Library/Frameworks/Python.framework/Versions/3.12/bin/python3 /Users/yangyang/.openclaw/scripts/memory_organizer.py health 2>/dev/null | grep "健康度" || echo "检查中...")
+$(/Library/Frameworks/Python.framework/Versions/3.12/bin/python3 ${CLAWSHELL_HOME:-$HOME/.clawshell}/scripts/memory_organizer.py health 2>/dev/null | grep "健康度" || echo "检查中...")
 
 ---
 
 *由系统自动生成 | $(date '+%H:%M:%S')*"
 
 # 4. 保存晨报
-echo "$MORNING_NEWS" > /Users/yangyang/.openclaw/inbox/morning_news_$(date '+%Y%m%d').md
+echo "$MORNING_NEWS" > ${CLAWSHELL_HOME:-$HOME/.clawshell}/inbox/morning_news_$(date '+%Y%m%d').md
 
 echo "[W2] 晨报已生成"
 echo "$MORNING_NEWS"

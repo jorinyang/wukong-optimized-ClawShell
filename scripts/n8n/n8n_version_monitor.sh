@@ -4,7 +4,7 @@
 # 定时检测版本并生成报告
 #
 
-LOG_FILE="/Users/yangyang/.openclaw/logs/n8n_version_workflow.log"
+LOG_FILE="${CLAWSHELL_HOME:-$HOME/.clawshell}/logs/n8n_version_workflow.log"
 
 log() {
     echo "[$(date '+%Y-%m-%d %H:%M:%S')] $1" | tee -a "$LOG_FILE"

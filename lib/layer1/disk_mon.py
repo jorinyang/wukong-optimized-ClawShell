@@ -259,7 +259,7 @@ class ScanScheduler:
         """发布扫描结果事件"""
         try:
             import sys
-            sys.path.insert(0, '/Users/yangyang/.openclaw/clawshell')
+            sys.path.insert(0, '${CLAWSHELL_HOME:-$HOME/.clawshell}/clawshell')
             from eventbus import EventBus
             from eventbus.event import Event, EventType
             

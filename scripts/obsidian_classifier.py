@@ -219,7 +219,7 @@ def classify_file(filepath: str, dry_run: bool = False) -> dict:
     """
     分类单个文件
     """
-    vault_path = Path("/Users/yangyang/Documents/Obsidian/OpenClaw")
+    vault_path = Path("${OBSIDIAN_VAULT:-$HOME/Documents/Obsidian}/OpenClaw")
     file_path = Path(filepath)
     
     # 读取文件内容
@@ -373,7 +373,7 @@ def main():
     if args.status:
         # 显示分类统计
         print("=== 分类统计 ===")
-        vault = Path("/Users/yangyang/Documents/Obsidian/OpenClaw")
+        vault = Path("${OBSIDIAN_VAULT:-$HOME/Documents/Obsidian}/OpenClaw")
         for cat in ["Work", "Learn", "Research", "Life", "Other"]:
             cat_path = vault / cat
             if cat_path.exists():

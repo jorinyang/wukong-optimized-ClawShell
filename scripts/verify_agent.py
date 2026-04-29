@@ -9,8 +9,8 @@ import sys
 import os
 
 # 添加路径
-sys.path.insert(0, '/Users/yangyang/.openclaw')
-sys.path.insert(0, '/Users/yangyang/.openclaw/clawshell')
+sys.path.insert(0, '${CLAWSHELL_HOME:-$HOME/.clawshell}')
+sys.path.insert(0, '${CLAWSHELL_HOME:-$HOME/.clawshell}/clawshell')
 
 def verify_agent_capabilities():
     """验证 Agent 能力继承"""
@@ -188,7 +188,7 @@ def verify_agent_capabilities():
     else:
         print("❌ 能力继承不完整，请检查环境配置")
         print("\n🔧 故障排除:")
-        print("  1. 确认 sys.path 包含 /Users/yangyang/.openclaw")
+        print("  1. 确认 sys.path 包含 ${CLAWSHELL_HOME:-$HOME/.clawshell}")
         print("  2. 确认所有模块文件存在")
         print("  3. 检查 Python 版本 (需要 3.8+)")
         return False

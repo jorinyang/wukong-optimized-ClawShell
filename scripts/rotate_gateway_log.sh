@@ -2,8 +2,8 @@
 # 日志轮转脚本
 # 功能：当日志文件超过阈值时自动归档
 
-LOG_FILE="/Users/yangyang/.openclaw/logs/gateway.err.log"
-LOG_DIR="/Users/yangyang/.openclaw/logs"
+LOG_FILE="${CLAWSHELL_HOME:-$HOME/.clawshell}/logs/gateway.err.log"
+LOG_DIR="${CLAWSHELL_HOME:-$HOME/.clawshell}/logs"
 MAX_SIZE_MB=50
 MAX_ARCHIVES=7
 

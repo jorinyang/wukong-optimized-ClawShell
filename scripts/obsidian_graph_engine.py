@@ -12,7 +12,7 @@ from datetime import datetime
 from collections import defaultdict
 
 # Vault路径
-VAULT_PATH = Path("/Users/yangyang/Documents/Obsidian/OpenClaw")
+VAULT_PATH = Path("${OBSIDIAN_VAULT:-$HOME/Documents/Obsidian}/OpenClaw")
 GRAPH_DIR = VAULT_PATH / "Graphs"
 
 class KnowledgeGraphEngine:

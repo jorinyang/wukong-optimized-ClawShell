@@ -265,7 +265,7 @@ class EnhancedTestRunner:
             # 简单测试EventBus处理速度
             script = """
 import sys
-sys.path.insert(0, '/Users/yangyang/.openclaw/workspace/shared/scripts')
+sys.path.insert(0, '${CLAWSHELL_HOME:-$HOME/.clawshell}/workspace/shared/scripts')
 from event_bus import EventBus
 eb = EventBus()
 eb.publish('test.benchmark', {'data': 'test'})
@@ -285,7 +285,7 @@ events = eb.get_pending_events()
         try:
             script = """
 import sys
-sys.path.insert(0, '/Users/yangyang/.openclaw/workspace/shared/scripts')
+sys.path.insert(0, '${CLAWSHELL_HOME:-$HOME/.clawshell}/workspace/shared/scripts')
 from context_manager import ContextManager
 cm = ContextManager()
 cm.collect()
@@ -304,7 +304,7 @@ cm.collect()
         try:
             script = """
 import sys
-sys.path.insert(0, '/Users/yangyang/.openclaw/workspace/shared/scripts')
+sys.path.insert(0, '${CLAWSHELL_HOME:-$HOME/.clawshell}/workspace/shared/scripts')
 from task_scheduler import TaskScheduler
 ts = TaskScheduler()
 ts.check_and_dispatch()

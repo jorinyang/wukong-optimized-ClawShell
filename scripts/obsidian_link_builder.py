@@ -13,7 +13,7 @@ from typing import Dict, List, Set, Tuple
 import argparse
 
 # Vault路径
-VAULT_PATH = Path("/Users/yangyang/Documents/Obsidian/OpenClaw")
+VAULT_PATH = Path("${OBSIDIAN_VAULT:-$HOME/Documents/Obsidian}/OpenClaw")
 LINKS_DIR = VAULT_PATH / ".links"
 
 class LinkBuilder:

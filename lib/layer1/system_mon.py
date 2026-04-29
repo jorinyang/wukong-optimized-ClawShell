@@ -205,7 +205,7 @@ class HealthMonitor:
         
         try:
             import sys
-            sys.path.insert(0, '/Users/yangyang/.openclaw/clawshell')
+            sys.path.insert(0, '${CLAWSHELL_HOME:-$HOME/.clawshell}/clawshell')
             from eventbus import EventBus
             
             eb = EventBus.get_instance()
@@ -265,7 +265,7 @@ class HealthMonitor:
         
         try:
             import json
-            agent_file = Path("/Users/yangyang/.openclaw/workspace/shared/agent-status.json")
+            agent_file = Path("${CLAWSHELL_HOME:-$HOME/.clawshell}/workspace/shared/agent-status.json")
             
             if not agent_file.exists():
                 score -= 50
@@ -457,7 +457,7 @@ class HealthMonitor:
         # 检查ClawShell各模块可用性
         try:
             import sys
-            sys.path.insert(0, '/Users/yangyang/.openclaw/clawshell')
+            sys.path.insert(0, '${CLAWSHELL_HOME:-$HOME/.clawshell}/clawshell')
             
             modules = [
                 ("TaskMarket", "organizer", "TaskMarket"),
@@ -509,7 +509,7 @@ class HealthMonitor:
         issues = []
         
         # 检查N8N配置
-        n8n_config = Path("/Users/yangyang/.openclaw/config/n8n.yaml")
+        n8n_config = Path("${CLAWSHELL_HOME:-$HOME/.clawshell}/config/n8n.yaml")
         if not n8n_config.exists():
             score -= 10
             issues.append(SystemIssue(
@@ -531,7 +531,7 @@ class HealthMonitor:
         
         try:
             import sys
-            sys.path.insert(0, '/Users/yangyang/.openclaw/clawshell')
+            sys.path.insert(0, '${CLAWSHELL_HOME:-$HOME/.clawshell}/clawshell')
             from heritage import HeritageManager
             
             hm = HeritageManager()

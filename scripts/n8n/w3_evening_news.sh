@@ -8,14 +8,14 @@ echo "[W3] 晚报生成开始 - $(date)"
 # 1. 汇总今日完成任务
 echo "[W3] 汇总今日任务..."
 TODAY=$(date '+%Y-%m-%d')
-COMPLETED_TASKS=$(cat /Users/yangyang/.openclaw/workspace/shared/task-queue.json 2>/dev/null | \
+COMPLETED_TASKS=$(cat ${CLAWSHELL_HOME:-$HOME/.clawshell}/workspace/shared/task-queue.json 2>/dev/null | \
   python3 -c "import sys,json; d=json.load(sys.stdin); tasks=d.get('tasks',[]);
   completed=[t for t in tasks if t.get('status')=='completed' and TODAY in t.get('completed_at','')]
   for t in completed[:5]: print(f'- {t.get(\"title\",\"无标题\")}')" TODAY=$TODAY 2>/dev/null || echo "暂无完成任务")
 
 # 2. 汇总错误与解决
 echo "[W3] 汇总错误解决..."
-ERROR_SUMMARY=$(cat /Users/yangyang/.openclaw/workspace/shared/task-queue.json 2>/dev/null | \
+ERROR_SUMMARY=$(cat ${CLAWSHELL_HOME:-$HOME/.clawshell}/workspace/shared/task-queue.json 2>/dev/null | \
   python3 -c "import sys,json; d=json.load(sys.stdin); tasks=d.get('tasks',[]);
   errors=[t for t in tasks if 'error' in t.get('status','').lower()]
   print(f'错误任务数: {len(errors)}')" 2>/dev/null || echo "无法统计")
@@ -44,7 +44,7 @@ ${HERMES_INSIGHT:-暂无}
 *由系统自动生成 | $(date '+%H:%M:%S')*"
 
 # 5. 保存晚报
-echo "$EVENING_NEWS" > /Users/yangyang/.openclaw/inbox/evening_news_$(date '+%Y%m%d').md
+echo "$EVENING_NEWS" > ${CLAWSHELL_HOME:-$HOME/.clawshell}/inbox/evening_news_$(date '+%Y%m%d').md
 
 echo "[W3] 晚报已生成"
 echo "$EVENING_NEWS"

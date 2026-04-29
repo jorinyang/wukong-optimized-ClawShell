@@ -4,7 +4,7 @@
 # 支持 LAB/DEV/DOC 并行分支
 #
 
-LOG_FILE="/Users/yangyang/.openclaw/logs/n8n_branch_workflow.log"
+LOG_FILE="${CLAWSHELL_HOME:-$HOME/.clawshell}/logs/n8n_branch_workflow.log"
 HTTP_SERVER="http://localhost:5680"
 
 log() {

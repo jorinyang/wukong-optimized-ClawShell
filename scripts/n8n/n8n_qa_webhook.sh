@@ -4,7 +4,7 @@
 # 触发智能问答系统
 #
 
-LOG_FILE="/Users/yangyang/.openclaw/logs/qa_webhook.log"
+LOG_FILE="${CLAWSHELL_HOME:-$HOME/.clawshell}/logs/qa_webhook.log"
 
 log() {
     echo "[$(date '+%Y-%m-%d %H:%M:%S')] $1" | tee -a "$LOG_FILE"

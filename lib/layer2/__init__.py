@@ -1,43 +1,62 @@
 """
-Layer 2 - 自适应层 (ClawShell v1.0 Wrapper)
-============================================
-来源: ~/.openclaw/adaptor/ + ~/.openclaw/eventbus/
-功能: 自修复、发现、条件引擎、策略选择、状态收集、分析响应、紧急响应、ML引擎、市场发现
+Layer 2 - 自适应层 (ClawShell v1.0)
+====================================
 
-导入示例:
-    from clawshell.lib.layer2 import SelfHealing, Discovery, ControlLoop
+功能: 自修复、自发现、条件引擎、策略评估、状态收集、分析响应、应急处理、ML引擎
+
+使用示例:
+    from lib.layer2 import SelfHealing, Discovery
 """
 
+# 尝试从symlink源加载，如果存在的话
 import sys
 from pathlib import Path
 
-_src_dirs = [
-    Path("~/.openclaw/adaptor").expanduser(),
-    Path("~/.openclaw/eventbus").expanduser(),
+# 检查是否有源目录可用
+_source_paths = [
+    Path(__file__).parent.parent.parent / "adaptor",  # ../../../adaptor
+    Path.home() / ".openclaw" / "adaptor",
 ]
-for _d in _src_dirs:
-    if str(_d) not in sys.path:
-        sys.path.insert(0, str(_d))
+
+for _sp in _source_paths:
+    if _sp.exists() and str(_sp) not in sys.path:
+        sys.path.insert(0, str(_sp))
+        break
 
 try:
     from self_healing import SelfHealingEngine as SelfHealing
     from discovery import DiscoveryEngine as Discovery
-    from condition_engine import ConditionEngine
-    from adaptive_controller import AdaptiveController
-    from adaptive_tuner import AdaptiveParameterTuner as AdaptiveTuner
-    from state_collector import StateCollector
     from analyzer import Analyzer
     from responder import Responder
     from emergency import Emergency
+    from state_collector import StateCollector
     from ml_engine import MLEngine
     from market_discovery import MarketDiscovery
-    from control_loop import FeedbackControlLoop as ControlLoop
+    from condition_engine import ConditionEngine
     
     __all__ = [
-        "SelfHealing", "Discovery", "ConditionEngine", "AdaptiveController",
-        "AdaptiveTuner", "StateCollector", "Analyzer", "Responder",
-        "Emergency", "MLEngine", "MarketDiscovery", "ControlLoop"
+        "SelfHealing", "Discovery", "Analyzer", "Responder",
+        "Emergency", "StateCollector", "MLEngine",
+        "MarketDiscovery", "ConditionEngine",
     ]
 except ImportError as e:
-    __all__ = []
-    __import_error__ = str(e)
+    # 如果源目录不可用，提供空实现
+    class _FallbackMixin:
+        def __init__(self, *args, **kwargs):
+            raise ImportError(f"Layer2 module unavailable: {e}")
+    
+    SelfHealing = _FallbackMixin
+    Discovery = _FallbackMixin
+    Analyzer = _FallbackMixin
+    Responder = _FallbackMixin
+    Emergency = _FallbackMixin
+    StateCollector = _FallbackMixin
+    MLEngine = _FallbackMixin
+    MarketDiscovery = _FallbackMixin
+    ConditionEngine = None
+    
+    __all__ = [
+        "SelfHealing", "Discovery", "Analyzer", "Responder",
+        "Emergency", "StateCollector", "MLEngine",
+        "MarketDiscovery", "ConditionEngine",
+    ]

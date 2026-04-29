@@ -1,42 +1,56 @@
 """
-Layer 4 - 集群层 (ClawShell v1.0 Wrapper)
-==========================================
-来源: ~/.openclaw/swarm/ + ~/.openclaw/strategies/
-功能: Swarm管理、信任评估、生态系统、协议、节点发现、信任撤销
+Layer 4 - 集群层 (ClawShell v1.0)
+====================================
 
-导入示例:
+功能: 集群发现、信任评估、信任撤销、生态位匹配、失败检测
+
+使用示例:
     from lib.layer4 import SwarmDiscovery, TrustManager
 """
 
 import sys
 from pathlib import Path
 
-_clawshell_root = Path("~/.openclaw/clawshell_v1").expanduser()
-_openclaw_root = Path("~/.openclaw").expanduser()
+# 检查是否有源目录可用
+_source_paths = [
+    Path(__file__).parent.parent.parent / "swarm",  # ../../../swarm
+    Path.home() / ".openclaw" / "swarm",
+]
 
-if str(_clawshell_root) not in sys.path:
-    sys.path.insert(0, str(_clawshell_root))
-if str(_openclaw_root) not in sys.path:
-    sys.path.insert(0, str(_openclaw_root))
+for _sp in _source_paths:
+    if _sp.exists() and str(_sp) not in sys.path:
+        sys.path.insert(0, str(_sp))
+        break
 
 try:
-    # Import from swarm package (requires .openclaw in path)
-    from swarm.swarm_discovery import SwarmDiscovery
-    from swarm.node_registry import NodeRegistry
-    from swarm.trust_manager import TrustManager
-    from swarm.trust_evaluator import TrustEvaluator
-    from swarm.trust_revocator import TrustRevocator
-    from swarm.ecology import SwarmEcology
-    from swarm.metrics_collector import MetricsCollector
-    from swarm.failure_detector import FailureDetector
-    from swarm.node_monitor import NodeMonitor
-    from swarm.weight_calculator import WeightCalculator
+    from swarm_discovery import SwarmDiscovery
+    from trust_manager import TrustManager, TrustEvaluator
+    from trust_revocator import TrustRevocator
+    from ecology import EcologyMatcher as Ecology
+    from failure_detector import FailureDetector
+    from metrics_collector import MetricsCollector
     
     __all__ = [
-        "SwarmDiscovery", "NodeRegistry", "TrustManager", "TrustEvaluator",
-        "TrustRevocator", "SwarmEcology", "MetricsCollector",
-        "FailureDetector", "NodeMonitor", "WeightCalculator"
+        "SwarmDiscovery", "TrustManager", "TrustEvaluator",
+        "TrustRevocator", "Ecology", "FailureDetector",
+        "MetricsCollector",
     ]
 except ImportError as e:
-    __all__ = []
-    __import_error__ = str(e)
+    # 如果源目录不可用，提供空实现
+    class _FallbackMixin:
+        def __init__(self, *args, **kwargs):
+            raise ImportError(f"Layer4 module unavailable: {e}")
+    
+    SwarmDiscovery = _FallbackMixin
+    TrustManager = _FallbackMixin
+    TrustEvaluator = _FallbackMixin
+    TrustRevocator = _FallbackMixin
+    Ecology = _FallbackMixin
+    FailureDetector = _FallbackMixin
+    MetricsCollector = _FallbackMixin
+    
+    __all__ = [
+        "SwarmDiscovery", "TrustManager", "TrustEvaluator",
+        "TrustRevocator", "Ecology", "FailureDetector",
+        "MetricsCollector",
+    ]

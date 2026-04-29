@@ -1,32 +1,35 @@
 """
-Hermes Bridge - Hermes协同模块 (ClawShell v1.0 Wrapper)
-========================================================
-来源: ~/.openclaw/workspace/shared/hermes_bridge/
-功能: Hermes事件消费、洞察同步、场景集成、触发配置
+Hermes Bridge - Hermes协同模块 (ClawShell v1.0)
+================================================
+
+功能: Hermes事件消费、洞察同步、场景集成、触发配置、优先级分类
+
+使用示例:
+    from lib.bridge.hermes import HermesBridge, ScenarioIntegrator
 """
 
-import sys
-from pathlib import Path
-
-_src = Path("~/.openclaw/workspace/shared/hermes_bridge").expanduser()
-if str(_src) not in sys.path:
-    sys.path.insert(0, str(_src))
-
 try:
-    from bridge import HermesBridge
-    from bridge_v2 import HermesBridgeV2
-    from scenario_integrator import ScenarioIntegrator
-    from trigger_config import TriggerConfig
-    from classifier import EventClassifier
-    from matcher import EventMatcher
-    from publisher import HermesPublisher
-    from queue import HermesQueue
+    from .bridge import HermesBridge
+    from .scenario_integrator import ScenarioIntegrator
+    from .trigger_config import TriggerConfig
+    from .classifier import EventClassifier
+    from .matcher import EventMatcher
+    from .publisher import HermesPublisher
+    from .queue import HermesQueue
+    from .events import Event, Priority, ResponseMode
+    from .priority_rules import PRIORITY_RULES
     
     __all__ = [
-        "HermesBridge", "HermesBridgeV2", "ScenarioIntegrator",
+        "HermesBridge", "ScenarioIntegrator",
         "TriggerConfig", "EventClassifier", "EventMatcher",
-        "HermesPublisher", "HermesQueue"
+        "HermesPublisher", "HermesQueue",
+        "Event", "Priority", "ResponseMode", "PRIORITY_RULES"
     ]
 except ImportError as e:
-    __all__ = []
-    __import_error__ = str(e)
+    class _FallbackMixin:
+        def __init__(self, *args, **kwargs):
+            raise ImportError(f"Hermes bridge unavailable: {e}")
+    
+    HermesBridge = ScenarioIntegrator = TriggerConfig = _FallbackMixin
+    
+    __all__ = ["HermesBridge", "ScenarioIntegrator"]

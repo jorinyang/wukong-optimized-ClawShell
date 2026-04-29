@@ -1,25 +1,21 @@
 """
-External Bridge - 外部工具集成 (ClawShell v1.0 Wrapper)
-=======================================================
-来源: ~/.openclaw/external/
-功能: MemOS同步, Obsidian同步, N8N客户端, Hermes反馈/同步, Wiki客户端, 新闻聚合
+External Bridge - 外部工具集成 (ClawShell v1.0)
+==============================================
+
+功能: MemOS同步, Obsidian同步, N8N客户端, Hermes反馈, Wiki客户端, 新闻聚合
+
+使用示例:
+    from lib.bridge.external import N8NClient, MemOSSync
 """
 
-import sys
-from pathlib import Path
-
-_src = Path("~/.openclaw/external").expanduser()
-if str(_src) not in sys.path:
-    sys.path.insert(0, str(_src))
-
 try:
-    from memos_sync import MemOSSync
-    from obsidian_sync import ObsidianSync
-    from n8n_client import N8NClient
-    from hermes_feedback import HermesFeedback
-    from hermes_sync import HermesSync
-    from wikipedia_client import WikipediaClient
-    from news_aggregator import NewsAggregator
+    from .memos_sync import MemOSSync
+    from .obsidian_sync import ObsidianSync
+    from .n8n_client import N8NClient
+    from .hermes_feedback import HermesFeedback
+    from .hermes_sync import HermesSync
+    from .wikipedia_client import WikipediaClient
+    from .news_aggregator import NewsAggregator
     
     __all__ = [
         "MemOSSync", "ObsidianSync", "N8NClient",
@@ -27,5 +23,10 @@ try:
         "WikipediaClient", "NewsAggregator"
     ]
 except ImportError as e:
-    __all__ = []
-    __import_error__ = str(e)
+    class _FallbackMixin:
+        def __init__(self, *args, **kwargs):
+            raise ImportError(f"External bridge unavailable: {e}")
+    
+    MemOSSync = ObsidianSync = N8NClient = _FallbackMixin
+    
+    __all__ = ["MemOSSync", "ObsidianSync", "N8NClient"]

@@ -1,0 +1,124 @@
+{
+  "name": "ClawShell",
+  "version": "1.0.0",
+  "description": "ClawShell v1.0 - 自感知自适应自组织AI Agent编排系统",
+  "build_date": "2026-04-30",
+  "架构": {
+    "自感知层": "lib/layer1 - 系统健康监控、磁盘/进程/网关/服务监控",
+    "自适应层": "lib/layer2 - 自修复、发现、条件引擎、策略选择、状态收集、分析、响应",
+    "自组织层": "lib/layer3 - 任务组织、DAG编排、任务市场、调度、N8N集成、上下文管理",
+    "集群层": "lib/layer4 - Swarm管理、信任评估、生态系统、协议",
+    "核心基础设施": "lib/core - EventBus事件总线、Genome知识传承、Strategy策略库",
+    "Bridge接口": "lib/bridge - Hermes协同、持久层、外部工具"
+  },
+  "source_mapping": {
+    "~/.openclaw/eventbus/": "lib/core/eventbus/",
+    "~/.openclaw/genome/": "lib/core/genome/",
+    "~/.openclaw/strategies/": "lib/core/strategy/",
+    "~/.openclaw/adaptor/": "lib/layer2/",
+    "~/.openclaw/organizer/": "lib/layer3/",
+    "~/.openclaw/swarm/": "lib/layer4/",
+    "~/.openclaw/external/": "lib/bridge/external/",
+    "~/.openclaw/workspace/shared/hermes_bridge/": "lib/bridge/hermes/",
+    "~/.openclaw/clawshell/": "覆盖旧版v0.9",
+    "~/.openclaw/hooks/": "scripts/hooks/",
+    "~/.openclaw/scripts/": "scripts/",
+    "~/.openclaw/workspace/shared/scripts/": "scripts/",
+    "~/n8n/scripts/": "scripts/n8n/"
+  },
+  "capabilities": {
+    "eventbus": [
+      "发布/订阅",
+      "优先级队列",
+      "死信队列",
+      "条件引擎",
+      "事件追踪",
+      "指标聚合"
+    ],
+    "genome": [
+      "知识图谱",
+      "语义搜索",
+      "版本管理",
+      "质量评估",
+      "模式挖掘",
+      "IQ评估"
+    ],
+    "strategy": [
+      "策略评估",
+      "策略切换",
+      "策略注册",
+      "多策略支持"
+    ],
+    "layer1": [
+      "健康检查",
+      "系统监控",
+      "磁盘监控",
+      "进程监控",
+      "Agent监控",
+      "网关监控",
+      "服务监控"
+    ],
+    "layer2": [
+      "自适应调优",
+      "自修复",
+      "市场发现",
+      "ML引擎",
+      "紧急响应",
+      "状态收集",
+      "分析响应"
+    ],
+    "layer3": [
+      "DAG编排",
+      "任务市场",
+      "任务注册",
+      "任务协调",
+      "调度器",
+      "N8N集成",
+      "上下文管理"
+    ],
+    "layer4": [
+      "Swarm集群",
+      "信任评估",
+      "生态管理",
+      "协议",
+      "节点发现",
+      "信任撤销"
+    ],
+    "hermes_bridge": [
+      "Hermes事件消费",
+      "Hermes洞察同步",
+      "场景集成"
+    ]
+  },
+  "integration": {
+    "n8n": [
+      "工作流触发",
+      "Webhook接收",
+      "消息队列",
+      "定时任务"
+    ],
+    "obsidian": [
+      "双向同步",
+      "图谱构建",
+      "链接发现",
+      "语义分析"
+    ],
+    "memOS": [
+      "记忆同步",
+      "洞察消费",
+      "知识图谱更新"
+    ],
+    "外部工具": [
+      "Aliyun ECS",
+      "DingTalk",
+      "Wiki",
+      "News"
+    ]
+  },
+  "cli": {
+    "bin/clawshell": "主入口CLI",
+    "bin/clawsync": "Hermes同步脚本"
+  },
+  "clawshell_version": "1.0.0",
+  "manifest_version": "1.0"
+}

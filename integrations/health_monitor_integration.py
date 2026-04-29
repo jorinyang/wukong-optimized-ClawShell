@@ -24,9 +24,9 @@ class WuKongHealthMonitor:
         critical_issues = []
         warnings = []
         
-        for component, status in report.items():
+        for component, status in report:
             if isinstance(status, dict):
-                health = status.get('health', HealthStatus.UNKNOWN)
+                health = status if hasattr(status, "name") else status
             else:
                 health = status
                 

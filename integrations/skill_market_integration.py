@@ -6,7 +6,7 @@ ClawShell Skill Market - 悟空专属技能市场
 import sys
 sys.path.insert(0, r'C:\Users\Aorus\.ClawShell')
 
-from lib.layer4.swarm import NodeRegistry, Node, NodeType, NodeStatus
+from lib.layer4.swarm import NodeRegistry, NodeType, NodeStatus
 from lib.layer3.task_market import TaskMarket, TaskMatcher, TaskPriority
 from dataclasses import dataclass
 from datetime import datetime
@@ -46,7 +46,11 @@ class WuKongSkillMarket:
             status=NodeStatus.ACTIVE,
             capabilities=skill.capabilities
         )
-        self.node_registry.register(skill_node)
+        self.node_registry.register(
+            name=f'skill-{skill.skill_id}',
+            node_type=NodeType.SERVICE,
+            capabilities=skill.capabilities
+        )
         
         return skill_node
     

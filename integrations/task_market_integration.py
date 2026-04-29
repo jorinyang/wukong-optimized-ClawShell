@@ -6,8 +6,8 @@ ClawShell 任务市场集成 - 替代悟空简单任务队列
 import sys
 sys.path.insert(0, r'C:\Users\Aorus\.ClawShell')
 
-from lib.layer4.swarm import NodeRegistry, Node, NodeType, NodeStatus
-from lib.layer3.task_market import TaskMarket, TaskMatcher, DAGNode, TaskPriority, TaskStatus
+from lib.layer4.swarm import NodeRegistry, NodeType, NodeStatus
+from lib.layer3.task_market import TaskMarket, TaskMatcher, TaskPriority, TaskStatus
 from datetime import datetime, timedelta
 
 class WuKongTaskMarket:
@@ -18,20 +18,17 @@ class WuKongTaskMarket:
         self.node_registry = NodeRegistry()
         
         # 注册悟空为任务节点
-        self.wukong_node = Node(
-            node_id='wukong-primary',
+        self.node_registry.register(
+            name='wukong-primary',
             node_type=NodeType.AGENT,
-            name='WuKong Primary Instance',
-            status=NodeStatus.ACTIVE,
             capabilities=['task_execution', 'skill_management', 'integration']
         )
-        self.node_registry.register(self.wukong_node)
         
         # 初始化任务市场
         self.market = TaskMarket(node_registry=self.node_registry)
         self.matcher = TaskMatcher(node_registry=self.node_registry)
         
-    def submit_task(self, task_type, description, priority=TaskPriority.MEDIUM, 
+    def submit_task(self, task_type, description, priority=TaskPriority.NORMAL, 
                     required_capabilities=None, timeout_seconds=300):
         """提交新任务"""
         deadline = datetime.now() + timedelta(seconds=timeout_seconds)

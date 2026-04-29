@@ -13,7 +13,7 @@ from lib.layer4.failure_detector import FailureDetector
 class WuKongClusterManager:
     """悟空集群管理器"""
     
-    def __init__(self, node_id='wukong-primary'):
+    def __init__(self, id='wukong-primary'):
         self.node_registry = NodeRegistry()
         self.trust_manager = TrustManager()
         self.failure_detector = FailureDetector()
@@ -32,15 +32,19 @@ class WuKongClusterManager:
             'integration'
         ]
         
-        node = Node(
-            node_id=self.node_id,
-            node_type=NodeType.AGENT,
+        # Node registration
+            id=self.node_id,
+            type=NodeType.AGENT,
             name='WuKong Primary',
             status=NodeStatus.ACTIVE,
             capabilities=capabilities
         )
         
-        self.node_registry.register(node)
+        self.node_registry.register(
+            name=peer_id,
+            node_type=NodeType.AGENT if peer_type == 'agent' else NodeType.WORKER,
+            capabilities=capabilities
+        )
         return node
     
     def discover_peers(self):
@@ -51,8 +55,8 @@ class WuKongClusterManager:
     def register_peer(self, peer_id, peer_type, capabilities):
         """注册对等节点"""
         peer = Node(
-            node_id=peer_id,
-            node_type=NodeType.AGENT if peer_type == 'agent' else NodeType.WORKER,
+            id=peer_id,
+            type=NodeType.AGENT if peer_type == 'agent' else NodeType.WORKER,
             name=f'Peer {peer_id}',
             status=NodeStatus.ACTIVE,
             capabilities=capabilities

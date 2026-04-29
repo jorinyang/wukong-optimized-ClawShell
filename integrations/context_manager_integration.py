@@ -23,10 +23,10 @@ class WuKongSessionManager:
         # 设置会话元数据
         if metadata:
             for key, value in metadata.items():
-                context.set_metadata(key, value)
+                context.set(key, value)
         
-        context.set_metadata('user_id', user_id or 'anonymous')
-        context.set_metadata('created_at', datetime.now().isoformat())
+        context.set('user_id', user_id or 'anonymous')
+        context.set('created_at', datetime.now().isoformat())
         
         self.current_context = context
         return context
@@ -46,14 +46,14 @@ class WuKongSessionManager:
     def save_session_data(self, key, value):
         """保存会话数据"""
         if self.current_context:
-            self.current_context.set_variable(key, value)
+            self.current_context.set(key, value)
             return True
         return False
     
     def get_session_data(self, key, default=None):
         """获取会话数据"""
         if self.current_context:
-            return self.current_context.get_variable(key, default)
+            return self.current_context.get(key, default)
         return default
     
     def list_active_sessions(self):
@@ -89,7 +89,7 @@ class WuKongMultiSessionContext:
         
         for session_id, session in self.sessions.items():
             if session.current_context:
-                created = session.current_context.get_variable('created_at')
+                created = session.current_context.get('created_at')
                 if created:
                     # 简化处理：直接移除旧会话
                     to_remove.append(session_id)

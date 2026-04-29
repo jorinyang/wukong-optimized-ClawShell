@@ -4,7 +4,7 @@
 > **定位**: OpenClaw 增强型外骨骼功能插件
 > **架构**: 自感知 × 自适应 × 自组织 × 多Agent集群
 
-ClawShell 是一个基于Harness Engineering思想，专为类 OpenClaw 架构设计的增强型外骨骼插件，通过四层架构（自感知、自适应、自组织、集群层）为核心系统叠加新能力，实现无需侵入原有代码的功能增强。
+ClawShell 是一个基于Harness Engineering思想，专为类 OpenClaw 架构（包含Hermes、阿里悟空、easyclaw等）设计的增强型外骨骼插件，通过四层架构（自感知、自适应、自组织、集群层）为核心系统叠加新能力，实现无需侵入原有代码的功能增强。
 
 详情请查看[ClawShell系统生态全景文档](ARCHITECTURE.md)
 

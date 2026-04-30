@@ -1,14 +1,16 @@
 #!/usr/bin/env python3
 """
 悟空日报生成器 - 每日工作汇总
-功能：收集当日工作数据，生成结构化日报并保存到Obsidian
+功能：收集当日工作数据，生成结构化日报并保存到Obsidian，同时推送至钉钉
 作者：悟空(WuKong)
-版本：v1.0
+版本：v1.1 - 新增钉钉推送功能
 """
 
+import os
 import sys
 import json
 import logging
+import requests
 from pathlib import Path
 from datetime import datetime, timedelta
 from typing import Dict, List, Optional
@@ -29,10 +31,108 @@ logging.basicConfig(
 logger = logging.getLogger(__name__)
 
 
+class DingTalkPusher:
+    """钉钉消息推送器"""
+    
+    def __init__(self, webhook_url: str = None):
+        """
+        初始化钉钉推送器
+        
+        Args:
+            webhook_url: 钉钉自定义机器人Webhook地址，默认从环境变量读取
+        """
+        if webhook_url:
+            self.webhook_url = webhook_url
+        else:
+            # 尝试从环境变量读取
+            self.webhook_url = os.environ.get("DINGTALK_WEBHOOK_URL", "")
+        
+        self.enabled = bool(self.webhook_url)
+        if not self.enabled:
+            logger.warning("钉钉Webhook未配置，将跳过推送")
+    
+    def send_text(self, content: str, at_mobiles: List[str] = None) -> bool:
+        """发送文本消息"""
+        if not self.enabled:
+            logger.info("钉钉推送未启用，跳过发送")
+            return False
+        
+        payload = {
+            "msgtype": "text",
+            "text": {
+                "content": content
+            }
+        }
+        
+        if at_mobiles:
+            payload["at"] = {
+                "atMobiles": at_mobiles,
+                "isAtAll": False
+            }
+        
+        try:
+            response = requests.post(
+                self.webhook_url,
+                json=payload,
+                headers={"Content-Type": "application/json"},
+                timeout=10
+            )
+            result = response.json()
+            
+            if result.get("errcode") == 0:
+                logger.info("钉钉文本消息发送成功")
+                return True
+            else:
+                logger.error(f"钉钉发送失败: {result.get('errmsg')}")
+                return False
+        except Exception as e:
+            logger.error(f"钉钉推送异常: {e}")
+            return False
+    
+    def send_markdown(self, title: str, content: str, at_mobiles: List[str] = None) -> bool:
+        """发送Markdown格式消息"""
+        if not self.enabled:
+            logger.info("钉钉推送未启用，跳过发送")
+            return False
+        
+        payload = {
+            "msgtype": "markdown",
+            "markdown": {
+                "title": title,
+                "text": content
+            }
+        }
+        
+        if at_mobiles:
+            payload["at"] = {
+                "atMobiles": at_mobiles,
+                "isAtAll": False
+            }
+        
+        try:
+            response = requests.post(
+                self.webhook_url,
+                json=payload,
+                headers={"Content-Type": "application/json"},
+                timeout=10
+            )
+            result = response.json()
+            
+            if result.get("errcode") == 0:
+                logger.info("钉钉Markdown消息发送成功")
+                return True
+            else:
+                logger.error(f"钉钉发送失败: {result.get('errmsg')}")
+                return False
+        except Exception as e:
+            logger.error(f"钉钉推送异常: {e}")
+            return False
+
+
 class WuKongDailyReportGenerator:
     """悟空日报生成器"""
-
-    def __init__(self):
+    
+    def __init__(self, dingtalk_webhook: str = None):
         self.today = datetime.now()
         self.date_str = self.today.strftime("%Y-%m-%d")
         self.time_str = self.today.strftime("%H:%M:%S")
@@ -43,6 +143,9 @@ class WuKongDailyReportGenerator:
         
         # 工作空间路径
         self.workspace_dir = Path.home() / ".real" / "users" / "user-bd1b229d4eff8f6a45c456149072cb3b" / "workspace"
+        
+        # 钉钉推送器
+        self.dingtalk = DingTalkPusher(dingtalk_webhook)
         
         self.data = {
             "date": self.date_str,
@@ -197,7 +300,7 @@ class WuKongDailyReportGenerator:
         # 健康状态
         if self.data["health_check"]:
             hc = self.data["health_check"]
-            status_emoji = {"healthy": "✅", "warning": "[WARN]️", "unhealthy": "❌"}.get(hc["status"], "❓")
+            status_emoji = {"healthy": "✅", "warning": "⚠️", "unhealthy": "❌"}.get(hc["status"], "❓")
             report += f"""## 🏥 系统健康
 
 {status_emoji} 今日健康评分: **{hc['score']}/100** ({hc['status']})
@@ -212,6 +315,7 @@ class WuKongDailyReportGenerator:
                 report += f"- [x] {task}\n"
         else:
             report += "- 无\n"
+        
         report += "\n"
         
         # 进行中任务
@@ -221,15 +325,17 @@ class WuKongDailyReportGenerator:
                 report += f"- [ ] {task}\n"
         else:
             report += "- 无\n"
+        
         report += "\n"
         
         # 延期任务
-        report += "## [WARN]️ 延期任务\n\n"
+        report += "## ⚠️ 延期任务\n\n"
         if self.data["tasks_delayed"]:
             for task in self.data["tasks_delayed"]:
                 report += f"- 🔴 {task}\n"
         else:
             report += "- 无\n"
+        
         report += "\n"
         
         # 新增任务
@@ -237,6 +343,7 @@ class WuKongDailyReportGenerator:
             report += "## ➕ 新增任务\n\n"
             for task in self.data["new_tasks"]:
                 report += f"- [ ] {task}\n"
+            
             report += "\n"
         
         # 今日更新
@@ -246,6 +353,7 @@ class WuKongDailyReportGenerator:
                 report += f"- [[{update['file']}|{update['title']}]]\n"
         else:
             report += "- 无\n"
+        
         report += "\n"
         
         # 定时任务执行记录
@@ -256,6 +364,7 @@ class WuKongDailyReportGenerator:
                 if task.get('last_run'):
                     report += f" ({task['last_run']})"
                 report += "\n"
+            
             report += "\n"
         
         # 使用的技能
@@ -263,6 +372,7 @@ class WuKongDailyReportGenerator:
             report += "## 🛠️ 使用技能\n\n"
             for skill in set(self.data["skills_used"]):
                 report += f"- [[Skills/{skill}|{skill}]]\n"
+            
             report += "\n"
         
         report += f"""---
@@ -271,6 +381,96 @@ class WuKongDailyReportGenerator:
 """
         
         return report
+
+    def generate_dingtalk_summary(self) -> tuple:
+        """生成钉钉推送摘要（Markdown格式）"""
+        # 钉钉Markdown标题
+        title = f"📋 日报 {self.date_str}"
+        
+        # 构建Markdown内容
+        md_content = f"""### 📅 {self.date_str} 日报
+
+---
+
+**生成时间**: {self.time_str}
+
+---
+
+### 📊 今日概况
+
+| 指标 | 数值 |
+|:---:|:---:|
+| ✅ 已完成 | {len(self.data['tasks_completed'])} |
+| 🔄 进行中 | {len(self.data['tasks_in_progress'])} |
+| ⚠️ 延期 | {len(self.data['tasks_delayed'])} |
+| ➕ 新增 | {len(self.data['new_tasks'])} |
+
+"""
+        
+        # 健康状态
+        if self.data["health_check"]:
+            hc = self.data["health_check"]
+            status_emoji = {"healthy": "✅", "warning": "⚠️", "unhealthy": "❌"}.get(hc["status"], "❓")
+            md_content += f"""### 🏥 系统健康
+
+{status_emoji} 健康评分: **{hc['score']}/100**
+
+"""
+        
+        # 已完成任务
+        md_content += "### ✅ 今日完成\n\n"
+        if self.data["tasks_completed"]:
+            for task in self.data["tasks_completed"][:5]:  # 限制最多5条
+                md_content += f"- {task}\n"
+            if len(self.data["tasks_completed"]) > 5:
+                md_content += f"- ...还有 {len(self.data['tasks_completed']) - 5} 项\n"
+        else:
+            md_content += "- 无\n"
+        
+        md_content += "\n"
+        
+        # 进行中任务
+        md_content += "### 🔄 进行中\n\n"
+        if self.data["tasks_in_progress"]:
+            for task in self.data["tasks_in_progress"][:5]:
+                md_content += f"- {task}\n"
+            if len(self.data["tasks_in_progress"]) > 5:
+                md_content += f"- ...还有 {len(self.data['tasks_in_progress']) - 5} 项\n"
+        else:
+            md_content += "- 无\n"
+        
+        md_content += "\n"
+        
+        # 延期任务（如果有）
+        if self.data["tasks_delayed"]:
+            md_content += "### ⚠️ 延期任务\n\n"
+            for task in self.data["tasks_delayed"][:3]:
+                md_content += f"- 🔴 {task}\n"
+            md_content += "\n"
+        
+        # 定时任务
+        if self.data["cron_tasks_run"]:
+            md_content += "### ⏰ 定时任务\n\n"
+            for task in self.data["cron_tasks_run"]:
+                md_content += f"- ✅ {task['name']}\n"
+            md_content += "\n"
+        
+        md_content += "---\n\n"
+        md_content += f"*悟空自动生成 | {self.time_str}*"
+        
+        return title, md_content
+
+    def push_to_dingtalk(self, content: str) -> bool:
+        """推送完整日报到钉钉"""
+        title, md_content = self.generate_dingtalk_summary()
+        
+        # 先发送摘要
+        success = self.dingtalk.send_markdown(title, md_content)
+        
+        if success:
+            logger.info("钉钉日报摘要推送成功")
+        
+        return success
 
     def save_report(self, content: str) -> Path:
         """保存日报"""
@@ -283,7 +483,7 @@ class WuKongDailyReportGenerator:
         logger.info(f"日报已保存: {output_file}")
         return output_file
 
-    def run(self) -> Path:
+    def run(self, push_dingtalk: bool = True) -> Dict:
         """执行日报生成"""
         logger.info("=" * 50)
         logger.info(f"悟空日报生成开始: {self.date_str}")
@@ -301,11 +501,22 @@ class WuKongDailyReportGenerator:
         # 保存报告
         output_file = self.save_report(content)
         
+        # 推送钉钉
+        dingtalk_success = False
+        if push_dingtalk:
+            dingtalk_success = self.push_to_dingtalk(content)
+        
         logger.info("=" * 50)
         logger.info(f"日报生成完成: {output_file}")
+        if push_dingtalk:
+            logger.info(f"钉钉推送: {'成功' if dingtalk_success else '失败/跳过'}")
         logger.info("=" * 50)
         
-        return output_file
+        return {
+            "report_file": str(output_file),
+            "dingtalk_pushed": dingtalk_success,
+            "full_content": content
+        }
 
 
 def main():
@@ -318,9 +529,21 @@ def main():
         generator.collect_updates()
         content = generator.generate_report()
         print(content)
+    # 支持 --no-push 参数只保存不推送
+    elif len(sys.argv) > 1 and sys.argv[1] == "--no-push":
+        result = generator.run(push_dingtalk=False)
+        print(f"\n日报已生成: {result['report_file']}")
     else:
-        output_file = generator.run()
-        print(f"\n日报已生成: {output_file}")
+        result = generator.run()
+        print(f"\n日报已生成: {result['report_file']}")
+        print(f"钉钉推送: {'成功' if result['dingtalk_pushed'] else '失败/跳过'}")
+        
+        # 如果是调试模式，输出完整内容
+        if "--debug" in sys.argv:
+            print("\n" + "=" * 50)
+            print("完整日报内容:")
+            print("=" * 50)
+            print(result['full_content'])
     
     return 0
 

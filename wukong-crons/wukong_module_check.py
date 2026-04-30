@@ -80,11 +80,11 @@ MODULE_TEST_LIST = {
     ],
     "Bridge-桥接": [
         ("lib.bridge.hermes.bridge", "HermesBridge", "Hermes桥接"),
-        ("lib.bridge.hermes.scenario_integrator", "ScenarioWatcher", "场景集成"),
-        ("lib.bridge.hermes.classifier", "Classifier", "分类器"),
-        ("lib.bridge.hermes.matcher", "TriggerMatcher", "匹配器"),
-        ("lib.bridge.hermes.publisher", "EventPublisher", "发布器"),
-        ("lib.bridge.hermes.subscriber", "Subscriber", "订阅器"),
+        ("lib.bridge.hermes.scenario_integrator", "HermesScenarioIntegrator", "场景集成"),
+        ("lib.bridge.hermes.classifier", "PriorityClassifier", "分类器"),
+        ("lib.bridge.hermes.matcher", "ResponseModeMatcher", "匹配器"),
+        ("lib.bridge.hermes.publisher", "EventBusPublisher", "发布器"),
+        ("lib.bridge.hermes.subscriber", "EventBusSubscriber", "订阅器"),
     ],
     "Detector-检测": [
         ("lib.detector.dependency_checker", "DependencyChecker", "依赖检查"),

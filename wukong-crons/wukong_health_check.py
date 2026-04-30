@@ -21,11 +21,20 @@ sys.path.insert(0, str(CLAWSHELL_PATH))
 LOG_DIR = Path.home() / ".real" / "users" / "user-bd1b229d4eff8f6a45c456149072cb3b" / "workspace" / "health_logs"
 LOG_DIR.mkdir(parents=True, exist_ok=True)
 
+# 跨平台编码配置
+import locale
+import platform
+ENCODING = 'utf-8' if platform.system() != 'Windows' else 'utf-8'
+
+# 设置控制台输出编码
+if sys.stdout.encoding.lower() != 'utf-8':
+    sys.stdout.reconfigure(encoding='utf-8', errors='replace')
+
 logging.basicConfig(
     level=logging.INFO,
     format='[%(levelname)s] %(asctime)s - %(message)s',
     handlers=[
-        logging.FileHandler(LOG_DIR / "health_check.log"),
+        logging.FileHandler(LOG_DIR / "health_check.log", encoding=ENCODING),
         logging.StreamHandler()
     ]
 )

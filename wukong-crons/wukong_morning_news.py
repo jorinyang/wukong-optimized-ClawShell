@@ -191,7 +191,7 @@ class WuKongMorningNews:
         news += "## 🏥 系统状态\n\n"
         if self.news["system_status"]:
             status = self.news["system_status"]
-            status_icon = {"healthy": "✅", "warning": "⚠️", "unhealthy": "❌"}.get(status["status"], "❓")
+            status_icon = {"healthy": "✅", "warning": "[WARN]️", "unhealthy": "❌"}.get(status["status"], "❓")
             issues_text = f"，发现 {status['issues_count']} 个问题" if status["issues_count"] > 0 else ""
             news += f"{status_icon} 悟空健康评分: **{status['score']}/100**{issues_text}\n\n"
         else:

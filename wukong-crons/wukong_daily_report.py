@@ -197,7 +197,7 @@ class WuKongDailyReportGenerator:
         # 健康状态
         if self.data["health_check"]:
             hc = self.data["health_check"]
-            status_emoji = {"healthy": "✅", "warning": "⚠️", "unhealthy": "❌"}.get(hc["status"], "❓")
+            status_emoji = {"healthy": "✅", "warning": "[WARN]️", "unhealthy": "❌"}.get(hc["status"], "❓")
             report += f"""## 🏥 系统健康
 
 {status_emoji} 今日健康评分: **{hc['score']}/100** ({hc['status']})
@@ -224,7 +224,7 @@ class WuKongDailyReportGenerator:
         report += "\n"
         
         # 延期任务
-        report += "## ⚠️ 延期任务\n\n"
+        report += "## [WARN]️ 延期任务\n\n"
         if self.data["tasks_delayed"]:
             for task in self.data["tasks_delayed"]:
                 report += f"- 🔴 {task}\n"

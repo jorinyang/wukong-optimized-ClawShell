@@ -276,12 +276,12 @@ class WuKongVersionMonitor:
 
     def generate_report(self) -> str:
         """生成报告"""
-        status_icon = {"pass": "✅", "warning": "⚠️", "fail": "❌", "error": "⚠️"}
+        status_icon = {"pass": "✅", "warning": "[WARN]️", "fail": "❌", "error": "[WARN]️"}
         
         report = f"""# 悟空版本检查报告
 
 **检查时间**: {self.results['timestamp']}
-**总体状态**: {"✅ 正常" if self.results["all_ok"] else "⚠️ 需要更新"}
+**总体状态**: {"✅ 正常" if self.results["all_ok"] else "[WARN]️ 需要更新"}
 
 ---
 
@@ -342,7 +342,7 @@ class WuKongVersionMonitor:
         self.check_all()
         
         logger.info("=" * 50)
-        logger.info(f"检查完成: {'✅ 正常' if self.results['all_ok'] else '⚠️ 需要更新'}")
+        logger.info(f"检查完成: {'✅ 正常' if self.results['all_ok'] else '[WARN]️ 需要更新'}")
         logger.info(f"需更新: {len(self.results['updates_available'])} 项")
         logger.info(f"警告: {len(self.results['warnings'])} 项")
         logger.info("=" * 50)
@@ -361,7 +361,7 @@ def main():
     print(f"\n{'=' * 50}")
     print("版本检查结果")
     print(f"{'=' * 50}")
-    print(f"状态: {'✅ 正常' if results['all_ok'] else '⚠️ 需要更新'}")
+    print(f"状态: {'✅ 正常' if results['all_ok'] else '[WARN]️ 需要更新'}")
     print(f"需更新: {len(results['updates_available'])} 项")
     print(f"警告: {len(results['warnings'])} 项")
     print(f"\n详细报告: {output_file}")

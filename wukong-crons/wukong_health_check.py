@@ -51,7 +51,7 @@ class WuKongHealthChecker:
         check = {"name": "Python环境", "status": "pass", "details": {}}
         
         try:
-            import python_version
+            import platform
             v = sys.version_info
             check["details"]["version"] = f"{v.major}.{v.minor}.{v.micro}"
             check["details"]["path"] = sys.executable
@@ -96,10 +96,10 @@ class WuKongHealthChecker:
             try:
                 module = __import__(module_path, fromlist=[class_name])
                 cls = getattr(module, class_name)
-                check["details"][module_name] = "✓ 可用"
+                check["details"][module_name] = "[OK] 可用"
                 success_count += 1
             except Exception as e:
-                check["details"][module_name] = f"✗ {str(e)[:50]}"
+                check["details"][module_name] = f"[FAIL] {str(e)[:50]}"
                 failed_modules.append(module_name)
                 logger.warning(f"模块 {module_name} 导入失败: {e}")
         
@@ -187,9 +187,9 @@ class WuKongHealthChecker:
                     req = urllib.request.Request(url, method='HEAD')
                     req.add_header('User-Agent', 'WuKong-HealthCheck/1.0')
                     with urllib.request.urlopen(req, timeout=5) as response:
-                        check["details"][name] = f"✓ {response.status}"
+                        check["details"][name] = f"[OK] {response.status}"
                 except Exception as e:
-                    check["details"][name] = f"✗ {str(e)[:30]}"
+                    check["details"][name] = f"[FAIL] {str(e)[:30]}"
                     self.score -= 5
                     logger.warning(f"{name} 连接失败: {e}")
                     
@@ -343,7 +343,7 @@ class WuKongHealthChecker:
             f.write(f"评分: {self.results['overall_score']}/100\n")
             f.write(f"\n检查项目:\n")
             for check in self.results["checks"]:
-                status_icon = {"pass": "✓", "warning": "⚠", "fail": "✗", "info": "ℹ"}.get(check["status"], "?")
+                status_icon = {"pass": "[OK]", "warning": "[WARN]", "fail": "[FAIL]", "info": "ℹ"}.get(check["status"], "?")
                 f.write(f"  {status_icon} {check['name']}: {check['status']}\n")
             
             if self.results["issues"]:

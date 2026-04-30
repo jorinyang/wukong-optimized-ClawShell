@@ -128,14 +128,14 @@ class WuKongModuleChecker:
                 cls = getattr(current, class_name, None)
             
             if cls:
-                return "pass", f"✓ {cls.__name__}"
+                return "pass", f"[OK] {cls.__name__}"
             else:
                 return "warning", f"模块存在但未找到类 {class_name}"
                 
         except ImportError as e:
-            return "fail", f"✗ 导入失败: {str(e)[:50]}"
+            return "fail", f"[FAIL] 导入失败: {str(e)[:50]}"
         except Exception as e:
-            return "fail", f"✗ {str(e)[:50]}"
+            return "fail", f"[FAIL] {str(e)[:50]}"
 
     def check_all_modules(self) -> Dict:
         """检查所有模块"""
@@ -221,7 +221,7 @@ class WuKongModuleChecker:
             report += "|------|------|------|------|------|\n"
             
             for mod in modules:
-                status_icon = {"pass": "✅", "warning": "⚠️", "fail": "❌"}.get(mod["status"], "❓")
+                status_icon = {"pass": "✅", "warning": "[WARN]️", "fail": "❌"}.get(mod["status"], "❓")
                 report += f"| {mod['module']} | {mod['class']} | {mod['description']} | {status_icon} | {mod['message']} |\n"
             
             report += "\n"
@@ -293,7 +293,7 @@ def main():
     print(f"总模块: {results['total_modules']}")
     print(f"通过: {results['passed']} ✅")
     print(f"失败: {results['failed']} ❌")
-    print(f"警告: {results['warnings']} ⚠️")
+    print(f"警告: {results['warnings']} [WARN]️")
     print(f"\n详细报告: {output_file}")
     
     return 0 if results['failed'] == 0 else 1

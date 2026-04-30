@@ -2,7 +2,7 @@
 name: ClawShell-Debug
 description: ClawShell插件安装及调试。当用户提到ClawShell安装、调试、出错、无法导入，或遇到lib.core/lib.layer1-4/bridge/detector/utils模块问题时触发。提供标准化的模块验证、功能测试、问题诊断和修复流程。
 author: WuKong
-version: '0.07'
+version: '0.08'
 ---
 
 # ClawShell-Debug 技能 (悟空专项优化版)
@@ -369,6 +369,64 @@ C:\Users\Aorus\.real\.bin\python-3.12-windows-x64\python.exe <workspace>\tmp\cla
 | v0.07 | 补充 Layer1/Layer2/Bridge 全量类名映射（Fix class names commit 6a7ae94 + 20d73c5）；bridge/persistence 子模块测试；导入测试扩展至 44 项 |
 | v0.06 | 新增 detector/utils 模块测试；bridge/__init__.py 导出修复；condition.py 导入路径修复 |
 | v2.0  | 初始悟空优化版，基础模块验证流程 |
+| v0.08 | 新增 Windows 适配经验（脚本位置、编码问题、Python 环境识别）；修复日报生成器编码问题 |
+
+---
+
+## Windows 适配经验 (v0.08 新增)
+
+### 脚本文件位置搜索
+
+| 脚本类型 | 预期路径 | Windows 实际位置 |
+|---------|---------|-----------------|
+| 日报生成器 | wukong-crons/wukong_daily_report.py | scripts/daily_report_generator.py |
+| 健康检查 | wukong-crons/wukong_health_check.py | scripts/health_check.py |
+| 晨报推送 | wukong-crons/wukong_morning_news.py | scripts/morning_news.py |
+| 定时任务目录 | wukong-crons/ | 实际位于 scripts/ 目录 |
+
+**搜索命令**：`dir /s /b C:\Users\Aorus\wukong*.py`
+
+### Windows 编码问题修复
+
+**症状**：`UnicodeEncodeError: 'gbk' codec can't encode character '📊'`
+
+**根因**：Windows 默认使用 GBK 编码，而脚本中包含 emoji 字符。
+
+**修复**：所有文件读写操作必须指定 UTF-8 编码。
+
+```
+错误: open(file, 'w')
+正确: open(file, 'w', encoding='utf-8')
+```
+
+**Python 一键修复脚本**：
+```python
+for fpath in ['script1.py', 'script2.py']:
+    with open(fpath, 'r', encoding='utf-8') as f:
+        content = f.read()
+    content = content.replace("open(file, 'w')", "open(file, 'w', encoding='utf-8')")
+    content = content.replace("open(file, 'r')", "open(file, 'r', encoding='utf-8')")
+    with open(fpath, 'w', encoding='utf-8') as f:
+        f.write(content)
+```
+
+### Windows Python 环境识别
+
+| 环境 | 路径 | .pth 机制 | 建议 |
+|------|------|----------|------|
+| 悟空内置 Python | C:\Users\Aorus\.real\.bin\python-3.12-windows-x64\python.exe | 已生效 | 直接 import lib |
+| 系统 Python | C:\Python314\python.exe | 需手动添加 | 脚本开头加 sys.path.insert |
+
+### 常用 Python 命令
+
+| 用途 | Windows 命令 |
+|------|-------------|
+| 运行脚本 | py scripts/daily_report_generator.py |
+| 安装依赖 | py -m pip install psutil |
+
+---
+
+
 
 ---
 

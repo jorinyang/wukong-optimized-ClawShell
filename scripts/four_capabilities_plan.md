@@ -108,7 +108,7 @@ class EnhancedTestRunner:
 
 #### Stage 2: 测试用例库
 ```
-~/.openclaw/testsuites/
+~/.悟空/testsuites/
 ├── unit/
 │   ├── test_eventbus.py
 │   ├── test_context_manager.py
@@ -147,7 +147,7 @@ jobs:
     steps:
       - uses: actions/checkout@v2
       - name: Run Tests
-        run: python3 ~/.openclaw/scripts/test_runner_enhanced.py
+        run: python3 ~/.悟空/scripts/test_runner_enhanced.py
 ```
 
 ---
@@ -311,10 +311,10 @@ class ReportTemplateEngine:
 
 # 模板目录
 TEMPLATES = {
-    "daily": "~/.openclaw/templates/daily_report.md",
-    "weekly": "~/.openclaw/templates/weekly_report.md", 
-    "monthly": "~/.openclaw/templates/monthly_report.md",
-    "incident": "~/.openclaw/templates/incident_report.md",
+    "daily": "~/.悟空/templates/daily_report.md",
+    "weekly": "~/.悟空/templates/weekly_report.md", 
+    "monthly": "~/.悟空/templates/monthly_report.md",
+    "incident": "~/.悟空/templates/incident_report.md",
 }
 ```
 

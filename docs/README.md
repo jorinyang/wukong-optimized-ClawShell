@@ -115,7 +115,7 @@ clawshell sync
 ### Python导入
 ```python
 import sys
-sys.path.insert(0, '~/.openclaw/clawshell_v1')
+sys.path.insert(0, '~/.悟空/clawshell_v1')
 
 from lib.core import eventbus, genome, strategy
 from lib.layer1 import HealthMonitor

@@ -4,7 +4,7 @@
 
 - Python 3.10+
 - macOS/Linux
-- OpenClaw 环境
+- 悟空 环境
 
 ## 安装步骤
 
@@ -12,7 +12,7 @@
 
 ```bash
 # 添加到 PATH
-export CLAWSHELL_ROOT="$HOME/.openclaw/clawshell_v1"
+export CLAWSHELL_ROOT="$HOME/.悟空/clawshell_v1"
 export PATH="$CLAWSHELL_ROOT/bin:$PATH"
 
 # 测试安装
@@ -22,8 +22,8 @@ clawshell status
 ### 方式二: 符号链接到系统路径
 
 ```bash
-ln -sf ~/.openclaw/clawshell_v1/bin/clawshell /usr/local/bin/clawshell
-ln -sf ~/.openclaw/clawshell_v1/bin/clawsync /usr/local/bin/clawsync
+ln -sf ~/.悟空/clawshell_v1/bin/clawshell /usr/local/bin/clawshell
+ln -sf ~/.悟空/clawshell_v1/bin/clawsync /usr/local/bin/clawsync
 ```
 
 ## 配置
@@ -32,7 +32,7 @@ ln -sf ~/.openclaw/clawshell_v1/bin/clawsync /usr/local/bin/clawsync
 
 | 变量 | 默认值 | 说明 |
 |------|--------|------|
-| CLAWSHELL_ROOT | ~/.openclaw/clawshell_v1 | 根目录 |
+| CLAWSHELL_ROOT | ~/.悟空/clawshell_v1 | 根目录 |
 | CLAWSHELL_LOG_LEVEL | INFO | 日志级别 |
 
 ### 持久化配置
@@ -40,7 +40,7 @@ ln -sf ~/.openclaw/clawshell_v1/bin/clawsync /usr/local/bin/clawsync
 将以下内容添加到 `~/.bashrc` 或 `~/.zshrc`:
 
 ```bash
-export CLAWSHELL_ROOT="$HOME/.openclaw/clawshell_v1"
+export CLAWSHELL_ROOT="$HOME/.悟空/clawshell_v1"
 export PATH="$CLAWSHELL_ROOT/bin:$PATH"
 ```
 
@@ -56,7 +56,7 @@ clawshell health
 # 运行测试
 python3 -c "
 import sys
-sys.path.insert(0, '$HOME/.openclaw/clawshell_v1')
+sys.path.insert(0, '$HOME/.悟空/clawshell_v1')
 from lib.core import eventbus
 from lib.layer1 import HealthMonitor
 print('All imports OK')
@@ -67,7 +67,7 @@ print('All imports OK')
 
 ```bash
 # 移除v1.0
-rm -rf ~/.openclaw/clawshell_v1
+rm -rf ~/.悟空/clawshell_v1
 
 # 移除符号链接 (如已创建)
 rm -f /usr/local/bin/clawshell /usr/local/bin/clawsync
@@ -78,19 +78,19 @@ rm -f /usr/local/bin/clawshell /usr/local/bin/clawsync
 ### 导入失败
 
 确保所有源目录存在:
-- ~/.openclaw/eventbus/
-- ~/.openclaw/genome/
-- ~/.openclaw/strategies/
-- ~/.openclaw/adaptor/
-- ~/.openclaw/organizer/
-- ~/.openclaw/swarm/
+- ~/.悟空/eventbus/
+- ~/.悟空/genome/
+- ~/.悟空/strategies/
+- ~/.悟空/adaptor/
+- ~/.悟空/organizer/
+- ~/.悟空/swarm/
 
 ### CLI不可用
 
 检查执行权限:
 ```bash
-chmod +x ~/.openclaw/clawshell_v1/bin/clawshell
-chmod +x ~/.openclaw/clawshell_v1/bin/clawsync
+chmod +x ~/.悟空/clawshell_v1/bin/clawshell
+chmod +x ~/.悟空/clawshell_v1/bin/clawsync
 ```
 
 ---

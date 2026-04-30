@@ -1,0 +1,87 @@
+{
+  "version": "1.0",
+  "name": "悟空定时任务配置",
+  "description": "悟空专用的定时任务配置，适配悟空MCP架构",
+  "last_updated": "2026-04-30",
+  
+  "tasks": [
+    {
+      "id": "health_check_morning",
+      "name": "健康检查（上午）",
+      "script": "wukong_health_check.py",
+      "cron": "0 8 * * *",
+      "priority": "high",
+      "enabled": true,
+      "description": "执行悟空及ClawShell的全链路健康检查",
+      "output": "~/workspace/health_logs/health_report_{date}.json"
+    },
+    {
+      "id": "health_check_evening",
+      "name": "健康检查（下午）",
+      "script": "wukong_health_check.py",
+      "cron": "0 20 * * *",
+      "priority": "high",
+      "enabled": true,
+      "description": "执行悟空及ClawShell的全链路健康检查",
+      "output": "~/workspace/health_logs/health_report_{date}.json"
+    },
+    {
+      "id": "daily_report",
+      "name": "日报生成",
+      "script": "wukong_daily_report.py",
+      "cron": "0 22 * * *",
+      "priority": "high",
+      "enabled": true,
+      "description": "收集当日工作数据，生成结构化日报",
+      "output": "~/Documents/Obsidian/WuKong/Daily/日报-{date}.md"
+    },
+    {
+      "id": "morning_news",
+      "name": "晨报推送",
+      "script": "wukong_morning_news.py",
+      "cron": "0 7 * * *",
+      "priority": "high",
+      "enabled": true,
+      "description": "生成并推送每日晨报，包含昨日总结、今日提醒",
+      "output": "~/Documents/Obsidian/WuKong/Morning/晨报-{date}.md"
+    },
+    {
+      "id": "self_repair",
+      "name": "自修复检测与执行",
+      "script": "wukong_self_repair.py",
+      "cron": "0 5 * * *",
+      "priority": "high",
+      "enabled": true,
+      "description": "自动检测并修复悟空常见问题",
+      "output": "~/workspace/repair_reports/self_repair_{date}.json"
+    },
+    {
+      "id": "version_monitor",
+      "name": "版本检测",
+      "script": "wukong_version_monitor.py",
+      "cron": "0 9 * * *",
+      "priority": "medium",
+      "enabled": true,
+      "description": "监控悟空及ClawShell的版本变化",
+      "output": "~/workspace/version_reports/version_check_{date}.json"
+    },
+    {
+      "id": "module_check",
+      "name": "模块自检",
+      "script": "wukong_module_check.py",
+      "cron": "0 9 * * 1",
+      "priority": "medium",
+      "enabled": true,
+      "description": "全面检测ClawShell所有模块的导入状态",
+      "output": "~/workspace/module_reports/module_check_{date}.json"
+    }
+  ],
+  
+  "global_settings": {
+    "log_dir": "~/workspace/logs",
+    "report_retention_days": 30,
+    "auto_cleanup": true,
+    "notify_on_failure": true,
+    "max_retry": 3
+  }
+}

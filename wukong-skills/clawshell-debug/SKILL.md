@@ -2,7 +2,7 @@
 name: ClawShell-Debug
 description: ClawShell插件安装及调试。当用户提到ClawShell安装、调试、出错、无法导入，或遇到lib.core/lib.layer1-4/bridge/detector/utils模块问题时触发。提供标准化的模块验证、功能测试、问题诊断和修复流程。
 author: WuKong
-version: '2.0'
+version: '0.07'
 ---
 
 # ClawShell-Debug 技能 (悟空专项优化版)
@@ -79,8 +79,8 @@ sub_modules = [
     ('lib.layer2.self_healing', 'SelfHealingEngine, BackupManager'),
     ('lib.layer2.discovery', 'DiscoveryEngine, Capability'),
     ('lib.layer2.condition', 'ConditionEngine, ConditionTrigger'),
-    ('lib.layer2.responder', 'Responder'),
-    ('lib.layer2.sense', 'SenseEngine'),
+    ('lib.layer2.responder', 'AutoResponder'),
+    ('lib.layer2.sense', 'SelfSenseEngine'),
     ('lib.layer2.adaptive_controller', 'AdaptiveController'),
     ('lib.layer3.task_market', 'TaskMarket, TaskMatcher, DAGNode'),
     ('lib.layer3.dag', 'TaskDAG, DAGValidator'),
@@ -92,6 +92,13 @@ sub_modules = [
     ('lib.layer4.failure_detector', 'FailureDetector'),
     ('lib.bridge.external', 'ExternalBridge, N8NClient, WebhookBridge'),
     ('lib.bridge.hermes', 'HermesBridge, HermesBridgeV2'),
+    ('lib.bridge.hermes.bridge', 'HermesBridge'),
+    ('lib.bridge.hermes.scenario_integrator', 'HermesScenarioIntegrator'),
+    ('lib.bridge.hermes.classifier', 'PriorityClassifier'),
+    ('lib.bridge.hermes.matcher', 'ResponseModeMatcher'),
+    ('lib.bridge.hermes.publisher', 'EventBusPublisher'),
+    ('lib.bridge.hermes.subscriber', 'EventBusSubscriber'),
+    ('lib.bridge.persistence', 'genome_bridge, memos_bridge, mempalace_bridge, obsidian_bridge'),
     ('lib.detector.framework_detector', 'FrameworkDetector'),
     ('lib.detector.dependency_checker', 'DependencyChecker'),
     ('lib.detector.persistence_detector', 'PersistenceDetector'),
@@ -108,9 +115,9 @@ for sub, desc in sub_modules:
         m = __import__(sub, fromlist=[''])
         names = [n for n in dir(m) if not n.startswith('_')]
         real_names = [n for n in names if n not in stdlib_names]
-        results.append(f'OK   {sub:<40} | {", ".join(real_names[:6])}')
+        results.append(f'OK   {sub:<50} | {", ".join(real_names[:6])}')
     except Exception as e:
-        results.append(f'FAIL {sub:<40} | {desc}: {e}')
+        results.append(f'FAIL {sub:<50} | {desc}: {e}')
 
 for r in results:
     print(r)
@@ -125,7 +132,7 @@ C:\Users\Aorus\.real\.bin\python-3.12-windows-x64\python.exe <workspace>\tmp\cla
 ```
 
 **解读标准**：
-- 32+ OK → 模块加载基本正常
+- 38+ OK → 模块加载基本正常
 - FAIL 在设计阶段未实现的模块 → 不影响核心
 - FAIL 在核心模块 → 导入路径错误，见陷阱速查
 
@@ -290,20 +297,57 @@ C:\Users\Aorus\.real\.bin\python-3.12-windows-x64\python.exe <workspace>\tmp\cla
 | `DAGExecutor` 找不到 | 类名变更 | 改用 `TaskDAG` |
 | `Coordinator` 找不到 | 类名变更 | 改用 `NodeCoordinator` |
 | `Swarm` 找不到 | 类名变更 | 改用 `NodeRegistry` + `Node` |
+| `SystemMonitor` 找不到 | 类名变更 | layer1 监控模块实际导出 `HealthMonitor`/`ScanConfig`/`RepairEngine` |
+| `DiskMonitor` / `ProcessMonitor` 找不到 | 类名变更 | 改用 `ScanConfig`（disk_mon / process_mon） |
+| `AgentMonitor` / `GatewayMonitor` / `ServiceMonitor` 找不到 | 类名变更 | 改用 `RepairEngine`（agent_mon / gateway_mon / service_mon） |
+| `CapabilityDiscovery` 找不到 | 类名变更 | 改用 `DiscoveryEngine`（lib.layer2.discovery） |
+| `SenseEngine` 找不到 | 类名变更 | 改用 `SelfSenseEngine`（lib.layer2.sense） |
+| `ResponseEngine` 找不到 | 类名变更 | 改用 `AutoResponder`（lib.layer2.responder） |
+| `ScenarioIntegrator` 找不到 | 类名变更 | 改用 `HermesScenarioIntegrator` |
+| `Classifier` 找不到 | 类名变更 | 改用 `PriorityClassifier` |
+| `Matcher` / `TriggerMatcher` 找不到 | 类名变更 | 改用 `ResponseModeMatcher` |
+| `Publisher` / `EventPublisher` 找不到 | 类名变更 | 改用 `EventBusPublisher` |
+| `Subscriber` 找不到 | 类名变更 | 改用 `EventBusSubscriber` |
 | TaskMarket 初始化报错 | 缺必需参数 | 传入 `node_registry=NodeRegistry()` |
 | `from hermes_bridge.xxx` 绝对导入 | 包名路径错误 | 改 `from .xxx import` 相对导入 |
 | `from .schema import` 找不到 | schema 不在当前包 | 确认 `core/eventbus/schema.py` 实际路径 |
-| layer1 监控模块无类导出 | 函数式 API 设计 | 检查模块内函数而非类 |
-| detector/utils 模块导入失败 | 模块未实现 | 升级到 v1.0.3+ 版本 |
+| `condition.py` 导入 schema 失败 | 相对导入路径错误 | 改为 `from lib.core.eventbus.schema import Event, EventType` |
+| detector/utils 模块导入失败 | 旧版本未实现 | 升级到最新版本（已在 wukong/main 实现） |
 
 ### Step 5: 生成评估报告
 
 根据测试结果，生成结构化报告，包含：
 
-1. **模块加载状态**：顶层包和子模块导入成功率（目标35/38）
+1. **模块加载状态**：顶层包和子模块导入成功率（目标38/44）
 2. **功能验证**：所有引擎实例化结果
 3. **问题清单**：发现的问题及修复方案
 4. **价值评估**：六层架构（Layer1-4 + Detector + Utils）对悟空的赋能评估
+
+---
+
+## 已知类名映射（v0.07 修正）
+
+以下为文档/旧代码中常见的错误类名与实际类名对照，来源于 `wukong_module_check.py` 的实测修正：
+
+| 模块 | 错误类名 | 正确类名 |
+|------|---------|---------|
+| `lib.layer1.system_mon` | `SystemMonitor` | `HealthMonitor` |
+| `lib.layer1.disk_mon` | `DiskMonitor` | `ScanConfig` |
+| `lib.layer1.process_mon` | `ProcessMonitor` | `ScanConfig` |
+| `lib.layer1.agent_mon` | `AgentMonitor` | `RepairEngine` |
+| `lib.layer1.gateway_mon` | `GatewayMonitor` | `RepairEngine` |
+| `lib.layer1.service_mon` | `ServiceMonitor` | `RepairEngine` |
+| `lib.layer2.discovery` | `CapabilityDiscovery` | `DiscoveryEngine` |
+| `lib.layer2.sense` | `SenseEngine` | `SelfSenseEngine` |
+| `lib.layer2.responder` | `ResponseEngine` | `AutoResponder` |
+| `lib.layer3.dag` | `DAGExecutor` | `TaskDAG` |
+| `lib.layer3.coordinator` | `Coordinator` | `NodeCoordinator` |
+| `lib.layer4.swarm` | `Swarm` | `NodeRegistry` |
+| `lib.bridge.hermes.scenario_integrator` | `ScenarioIntegrator` / `ScenarioWatcher` | `HermesScenarioIntegrator` |
+| `lib.bridge.hermes.classifier` | `Classifier` | `PriorityClassifier` |
+| `lib.bridge.hermes.matcher` | `Matcher` / `TriggerMatcher` | `ResponseModeMatcher` |
+| `lib.bridge.hermes.publisher` | `Publisher` / `EventPublisher` | `EventBusPublisher` |
+| `lib.bridge.hermes.subscriber` | `Subscriber` | `EventBusSubscriber` |
 
 ---
 
@@ -311,10 +355,20 @@ C:\Users\Aorus\.real\.bin\python-3.12-windows-x64\python.exe <workspace>\tmp\cla
 
 本版本相比原版增加了以下优化：
 
-1. **新增模块测试**：detector 和 utils 模块的完整导入和功能测试
-2. **集成建议**：完整的短期/中期/长期集成路线图
-3. **自动修复**：hermes 桥接模块的相对导入修复脚本
+1. **新增模块测试**：detector 和 utils 模块的完整导入和功能测试，bridge/persistence 持久层（genome_bridge / memos_bridge / mempalace_bridge / obsidian_bridge）
+2. **类名修正**：补充 Layer1/Layer2/Bridge 所有模块的实际类名（来源：wukong_module_check.py 实测，v0.07 修正）
+3. **自动修复**：hermes 桥接模块的相对导入修复脚本，condition.py 导入路径修复
 4. **悟空仓库**：悟空优化版 Fork 仓库地址
+
+---
+
+## 版本历史
+
+| 版本 | 说明 |
+|------|------|
+| v0.07 | 补充 Layer1/Layer2/Bridge 全量类名映射（Fix class names commit 6a7ae94 + 20d73c5）；bridge/persistence 子模块测试；导入测试扩展至 44 项 |
+| v0.06 | 新增 detector/utils 模块测试；bridge/__init__.py 导出修复；condition.py 导入路径修复 |
+| v2.0  | 初始悟空优化版，基础模块验证流程 |
 
 ---
 

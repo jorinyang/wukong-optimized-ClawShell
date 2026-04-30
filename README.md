@@ -76,6 +76,33 @@ bash install.sh
 python -m clawshell.cli status
 ```
 
+### 悟空用户安装
+
+悟空用户可以直接通过 skills 安装 ClawShell-Debug 技能进行自动化安装和调试。只需对悟空说：
+
+```
+帮我安装 ClawShell-Debug 技能
+```
+
+该技能支持以下功能：
+
+| 功能 | 说明 |
+|------|------|
+| **自动化安装** | 克隆仓库、配置路径、验证导入 |
+| **模块诊断** | 42个模块导入验证，实时反馈问题 |
+| **Bug修复** | 自动修复已知导入路径错误（condition.py、task_market.py、hermes/） |
+| **健康检测** | Layer1-4 全链路功能测试 |
+
+**触发词示例**：
+
+- "ClawShell安装"
+- "ClawShell调试"
+- "ClawShell报错"
+- "无法导入 lib.layer2"
+- "bridge/hermes 模块问题"
+
+---
+
 ### 验证安装
 
 ```bash

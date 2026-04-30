@@ -36,20 +36,20 @@ logger = logging.getLogger(__name__)
 MODULE_TEST_LIST = {
     "Layer1-自感知": [
         ("lib.layer1.health_check", "HealthMonitor", "健康检查"),
-        ("lib.layer1.system_mon", "SystemMonitor", "系统监控"),
-        ("lib.layer1.disk_mon", "DiskMonitor", "磁盘监控"),
-        ("lib.layer1.process_mon", "ProcessMonitor", "进程监控"),
-        ("lib.layer1.agent_mon", "AgentMonitor", "Agent监控"),
-        ("lib.layer1.gateway_mon", "GatewayMonitor", "网关监控"),
-        ("lib.layer1.service_mon", "ServiceMonitor", "服务监控"),
+        ("lib.layer1.system_mon", "HealthMonitor", "系统监控"),
+        ("lib.layer1.disk_mon", "ScanConfig", "磁盘监控"),
+        ("lib.layer1.process_mon", "ScanConfig", "进程监控"),
+        ("lib.layer1.agent_mon", "RepairEngine", "Agent监控"),
+        ("lib.layer1.gateway_mon", "RepairEngine", "网关监控"),
+        ("lib.layer1.service_mon", "RepairEngine", "服务监控"),
     ],
     "Layer2-自适应": [
         ("lib.layer2.self_healing", "SelfHealingEngine", "自修复系统"),
         ("lib.layer2.self_repair", "SelfHealingEngine", "自修复引擎"),
         ("lib.layer2.condition", "ConditionEngine", "条件引擎"),
-        ("lib.layer2.discovery", "CapabilityDiscovery", "能力发现"),
-        ("lib.layer2.sense", "SenseEngine", "感知引擎"),
-        ("lib.layer2.responder", "ResponseEngine", "响应引擎"),
+        ("lib.layer2.discovery", "DiscoveryEngine", "能力发现"),
+        ("lib.layer2.sense", "SelfSenseEngine", "感知引擎"),
+        ("lib.layer2.responder", "AutoResponder", "响应引擎"),
         ("lib.layer2.adaptive_controller", "AdaptiveController", "自适应控制器"),
     ],
     "Layer3-自组织": [
@@ -80,10 +80,10 @@ MODULE_TEST_LIST = {
     ],
     "Bridge-桥接": [
         ("lib.bridge.hermes.bridge", "HermesBridge", "Hermes桥接"),
-        ("lib.bridge.hermes.scenario_integrator", "ScenarioIntegrator", "场景集成"),
+        ("lib.bridge.hermes.scenario_integrator", "ScenarioWatcher", "场景集成"),
         ("lib.bridge.hermes.classifier", "Classifier", "分类器"),
-        ("lib.bridge.hermes.matcher", "Matcher", "匹配器"),
-        ("lib.bridge.hermes.publisher", "Publisher", "发布器"),
+        ("lib.bridge.hermes.matcher", "TriggerMatcher", "匹配器"),
+        ("lib.bridge.hermes.publisher", "EventPublisher", "发布器"),
         ("lib.bridge.hermes.subscriber", "Subscriber", "订阅器"),
     ],
     "Detector-检测": [

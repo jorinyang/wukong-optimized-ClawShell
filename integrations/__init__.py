@@ -18,3 +18,9 @@ __all__ = [
     'WuKongSkillMarket',
     'Skill'
 ]
+
+# 便捷导入 - 定时任务用
+from .health_cron import WuKongHealthCron
+from .task_queue_upgrade import WuKongTaskQueue, get_task_queue
+
+__all__ += ['WuKongHealthCron', 'WuKongTaskQueue', 'get_task_queue']

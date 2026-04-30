@@ -1,6 +1,6 @@
 """
-ClawShell 健康检查集成 - 悟空定期自检
-集成 Layer1 健康监控系统到悟空的自检流程
+ClawShell 健康检查集成 - 替换悟空手动健康检查
+集成 Layer1 HealthMonitor 到悟空的系统监控
 """
 
 import sys
@@ -8,70 +8,81 @@ sys.path.insert(0, r'C:\Users\Aorus\.ClawShell')
 
 from lib.layer1.health_check import HealthMonitor, HealthStatus
 
+
 class WuKongHealthMonitor:
-    """悟空健康监控集成类"""
+    """悟空健康监控系统 - 基于ClawShell Layer1"""
     
     def __init__(self):
         self.monitor = HealthMonitor()
         self.last_report = None
         
     def run_health_check(self):
-        """执行完整健康检查"""
+        """执行全面健康检查，返回格式化报告"""
         report = self.monitor.scan()
         self.last_report = report
         
-        # 分析健康状态
-        critical_issues = []
-        warnings = []
-        
-        for component, status in report:
-            if isinstance(status, dict):
-                health = status if hasattr(status, "name") else status
-            else:
-                health = status
-                
-            if health == HealthStatus.CRITICAL:
-                critical_issues.append(component)
-            elif health == HealthStatus.WARNING:
-                warnings.append(component)
-        
-        return {
-            'critical': critical_issues,
-            'warnings': warnings,
-            'healthy': len(report) - len(critical_issues) - len(warnings),
-            'total': len(report)
+        # 格式化报告
+        result = {
+            'timestamp': report.timestamp,
+            'overall_status': report.status.name if hasattr(report.status, 'name') else str(report.status),
+            'overall_score': round(report.overall_score, 1),
+            'scores': report.scores,
+            'issues': [],
+            'recommendations': report.recommendations,
+            'stats': report.stats
         }
+        
+        # 格式化问题列表
+        for issue in report.issues:
+            result['issues'].append({
+                'id': issue.id,
+                'name': issue.name,
+                'severity': issue.severity.name if hasattr(issue.severity, 'name') else str(issue.severity),
+                'description': issue.description,
+                'auto_repairable': issue.auto_repairable,
+                'repair_action': issue.repair_action
+            })
+        
+        return result
     
     def get_status_summary(self):
         """获取状态摘要"""
         if not self.last_report:
             self.run_health_check()
         
-        summary = {}
-        for component, status in self.last_report.items():
-            if isinstance(status, dict):
-                summary[component] = {
-                    'status': status.get('health', HealthStatus.UNKNOWN).name,
-                    'details': status.get('details', {})
-                }
-            else:
-                summary[component] = {'status': status.name if hasattr(status, 'name') else str(status)}
+        report = self.last_report
+        return {
+            'status': report.status.name if hasattr(report.status, 'name') else str(report.status),
+            'score': round(report.overall_score, 1),
+            'p0_count': report.stats.get('p0_count', 0),
+            'p1_count': report.stats.get('p1_count', 0),
+            'active_issues': report.stats.get('active_issues', 0)
+        }
+    
+    def get_critical_issues(self):
+        """获取关键问题（P0和P1）"""
+        if not self.last_report:
+            self.run_health_check()
         
-        return summary
+        critical = []
+        for issue in self.last_report.issues:
+            severity_name = issue.severity.name if hasattr(issue.severity, 'name') else str(issue.severity)
+            if severity_name in ['P0', 'P1']:
+                critical.append({
+                    'name': issue.name,
+                    'severity': severity_name,
+                    'description': issue.description
+                })
+        
+        return critical
+    
+    def is_healthy(self):
+        """快速检查是否健康"""
+        if not self.last_report:
+            self.run_health_check()
+        
+        return self.last_report.status == HealthStatus.HEALTHY
 
 
-# 集成示例
-if __name__ == '__main__':
-    monitor = WuKongHealthMonitor()
-    result = monitor.run_health_check()
-    
-    print("=== 悟空健康检查报告 ===")
-    print(f"总组件数: {result['total']}")
-    print(f"健康: {result['healthy']}")
-    print(f"警告: {len(result['warnings'])}")
-    print(f"严重: {len(result['critical'])}")
-    
-    if result['warnings']:
-        print(f"\n警告组件: {', '.join(result['warnings'])}")
-    if result['critical']:
-        print(f"\n严重问题: {', '.join(result['critical'])}")
+# 导出
+__all__ = ['WuKongHealthMonitor']

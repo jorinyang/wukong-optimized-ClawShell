@@ -31,22 +31,24 @@ class WuKongTaskMarket:
     def submit_task(self, task_type, description, priority=TaskPriority.NORMAL, 
                     required_capabilities=None, timeout_seconds=300):
         """提交新任务"""
-        deadline = datetime.now() + timedelta(seconds=timeout_seconds)
+        from lib.layer3.task_market import Task
         
-        task = self.market.submit_task(
-            task_type=task_type,
+        task = Task(
+            name=task_type,
             description=description,
-            priority=priority,
+            priority=priority.value if hasattr(priority, 'value') else priority,
             required_capabilities=required_capabilities or ['task_execution'],
-            deadline=deadline
+            timeout=timeout_seconds
         )
         
+        task_id = self.market.publish_task(task)
+        
         return {
-            'task_id': task.task_id,
-            'type': task.type,
-            'priority': task.priority.name,
-            'status': task.status.name,
-            'deadline': task.deadline.isoformat()
+            'task_id': task_id,
+            'type': task.name,
+            'priority': task.priority,
+            'status': task.status,
+            'timeout': task.timeout
         }
     
     def get_pending_tasks(self):
@@ -69,11 +71,12 @@ class WuKongTaskMarket:
     def get_market_stats(self):
         """获取市场统计"""
         pending = self.get_pending_tasks()
+        active_nodes = len(self.node_registry.get_active())
+        
         return {
             'pending_count': len(pending),
-            'total_capacity': len(self.node_registry.list_nodes()),
-            'active_nodes': len([n for n in self.node_registry.list_nodes() 
-                                 if n.status == NodeStatus.ACTIVE])
+            'total_capacity': len(self.node_registry.nodes),
+            'active_nodes': active_nodes
         }
 
 

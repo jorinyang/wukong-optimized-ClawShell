@@ -83,6 +83,18 @@ class EventType(Enum):
     CONDITION_EVALUATED = "condition.evaluated"
     METRIC_UPDATED = "metric.updated"
 
+    # ========== Conversation / Turn Lifecycle Events ==========
+    CONVERSATION_STARTED = "conversation.started"
+    CONVERSATION_ENDED = "conversation.ended"
+    TURN_STARTED = "turn.started"
+    TURN_ENDED = "turn.ended"
+    RESPONSE_GENERATED = "response.generated"
+
+    # ========== Memory Events ==========
+    MEMORY_WRITTEN = "memory.written"
+    MEMORY_QUERIED = "memory.queried"
+    MEMORY_CONSOLIDATED = "memory.consolidated"
+
 
 class EventSource(Enum):
     """事件来源枚举"""

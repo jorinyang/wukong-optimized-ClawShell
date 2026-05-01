@@ -468,6 +468,79 @@ python -m pytest tests/ --cov=lib --cov-report=html
 
 ## 架构文档
 
+
+## MCP Bridge 架构
+
+ClawShell 支持通过 MCP Bridge 与 Real/悟空进行双模通信：stdio + HTTP Bridge。
+
+### 架构
+
+```
+Real/悟空
+  ├─ mcp_runtime(stdio)  → subprocess → MCP Server
+  └─ HTTP POST http://127.0.0.1:47832 → JSON-RPC → ToolExecutor
+        ├─ MemPalaceMCPTools（9个工具）
+        └─ EventBus Lifecycle（6个工具）
+```
+
+### 启动 MCP Server
+
+```bash
+python C:/Users/Aorus/.real/users/.../workspace/tmp/mcp_server.py
+```
+
+MCP Server 同时监听：
+- **stdio**：ClawShell MCP 运行时通过 subprocess 调用
+- **HTTP**：`http://127.0.0.1:47832` JSON-RPC 接口
+
+### HTTP 调用示例
+
+```bash
+curl -X POST http://127.0.0.1:47832 \
+  -H "Content-Type: application/json" \
+  -d '{"jsonrpc":"2.0","id":1,"method":"health"}'
+```
+
+### 工具清单（15个）
+
+| 工具 | 功能 |
+|------|------|
+| `mempalace_health` | 健康检查 |
+| `mempalace_search` | 语义记忆搜索 |
+| `mempalace_write` | 写入记忆 |
+| `mempalace_get_recent` | 获取最近记忆 |
+| `mempalace_stats` | 统计信息 |
+| `mempalace_delete` | 删除记忆 |
+| `mempalace_batch_write` | 批量写入 |
+| `mempalace_clear` | 清空记忆 |
+| `mempalace_collection_info` | 集合信息 |
+| `eventbus_publish` | 发布事件到 EventBus |
+| `eventbus_subscribe` | 订阅 EventBus 事件 |
+| `eventbus_query` | 查询历史事件 |
+| `eventbus_stats` | EventBus 统计 |
+| `mempalace_register_hooks` | 注册生命周期 Hook |
+| `mempalace_hooks_status` | Hook 注册状态 |
+
+### 生命周期事件类型
+
+| 事件类型 | 触发时机 |
+|----------|----------|
+| `conversation.started` | 对话开始 |
+| `conversation.ended` | 对话结束 |
+| `turn.started` | 用户发消息 |
+| `turn.ended` | 助手回复完毕 |
+| `response.generated` | 响应已生成 |
+| `task.started` | 任务开始 |
+| `task.completed` | 任务完成 |
+| `memory.written` | 记忆已写入 |
+| `memory.queried` | 记忆已查询 |
+
+### 已知限制
+
+- stdio 传输层可能受管道缓冲影响导致超时，建议使用 HTTP Bridge 模式。
+- HTTP Bridge 模式需要 MCP Server 进程独立运行。
+
+
 完整的系统架构文档请参考 [ARCHITECTURE.md](./ARCHITECTURE.md)，包含：
 
 - 第一章：系统概述与定位

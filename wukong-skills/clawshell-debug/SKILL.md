@@ -2,7 +2,8 @@
 name: ClawShell-Debug
 description: ClawShell插件安装及调试。当用户提到ClawShell安装、调试、出错、无法导入，或遇到lib.core/lib.layer1-4/bridge/detector/utils模块问题时触发。提供标准化的模块验证、功能测试、问题诊断和修复流程。
 author: WuKong
-version: '0.07'
+version: '0.08'
+default_repo: https://github.com/jorinyang/wukong-optimized-ClawShell
 ---
 
 # ClawShell-Debug 技能 (悟空专项优化版)

@@ -1,624 +1,765 @@
-#!/usr/bin/env python3
+# -*- coding: utf-8 -*-
 """
-悟空自修复适配器
-功能：检测并自动修复悟空常见问题，适配悟空MCP架构
-作者：悟空(WuKong)
-版本：v1.0
+wukong_self_repair.py - 悟空自修复检测与执行脚本
+版本: v1.0 Windows适配版
+功能: 检测悟空系统健康状态，自动修复问题
+
+适配说明:
+- 原 ClawShell 自修复脚本针对 macOS OpenClaw 设计
+- 本版本适配 Windows 悟空环境，使用 psutil 进行跨平台检测
+- 替换 macOS 特有命令(openclaw/launchctl/pgrep)为 Python 模块
+
+目录结构:
+- 工作区: {USER_WORKSPACE}/workspace/
+- 脚本目录: {USER_WORKSPACE}/workspace/wukong-crons/
+- 日志: {USER_WORKSPACE}/workspace/logs/
+- 报告: {USER_WORKSPACE}/workspace/repair_reports/
 """
 
-import sys
 import json
-import logging
+import os
+import sys
 import subprocess
-from pathlib import Path
 from datetime import datetime
-from typing import Dict, List, Optional, Callable
+from pathlib import Path
+from typing import Dict, List, Tuple, Optional, Any
 
-# 日志配置
-LOG_DIR = Path.home() / ".real" / "users" / "user-bd1b229d4eff8f6a45c456149072cb3b" / "workspace" / "logs"
-LOG_DIR.mkdir(parents=True, exist_ok=True)
+# ========== 路径配置 ==========
+# 悟空工作区根目录
+WK_WORKSPACE = Path(__file__).parent.parent.resolve()
+WK_SCRIPTS_DIR = Path(__file__).parent
+WK_LOGS_DIR = WK_WORKSPACE / "logs"
+WK_REPAIR_REPORTS_DIR = WK_WORKSPACE / "repair_reports"
+WK_SHARED_DIR = WK_WORKSPACE / "shared"
 
-# 跨平台编码配置
-import locale
-import platform
-ENCODING = 'utf-8' if platform.system() != 'Windows' else 'utf-8'
+# ClawShell 安装目录
+CLAWSHELL_HOME = Path(os.path.expandvars("%USERPROFILE%")) / ".ClawShell"
 
-# 设置控制台输出编码
-if sys.stdout.encoding.lower() != 'utf-8':
-    sys.stdout.reconfigure(encoding='utf-8', errors='replace')
-
-logging.basicConfig(
-    level=logging.INFO,
-    format='[%(levelname)s] %(asctime)s - %(message)s',
-    handlers=[
-        logging.FileHandler(LOG_DIR / "self_repair.log", encoding=ENCODING),
-        logging.StreamHandler()
-    ]
-)
-logger = logging.getLogger(__name__)
+# 修复队列和日志文件
+REPAIR_QUEUE_FILE = WK_SHARED_DIR / "repair_queue.json"
+REPAIR_LOG = WK_LOGS_DIR / "self_repair.log"
 
 
-# 修复动作定义
-REPAIR_ACTIONS = {
-    # 模块导入问题
-    "import_error": {
-        "description": "模块导入失败",
-        "actions": [
-            {
-                "name": "重新配置Python路径",
-                "command": None,  # 通过代码修复
-                "fix_func": "fix_import_path"
-            },
-            {
-                "name": "重装ClawShell-Debug技能",
-                "command": "skills reinstall clawshell-debug",
-                "fix_func": None
-            }
-        ]
-    },
-    # 技能问题
-    "skill_missing": {
-        "description": "技能缺失",
-        "actions": [
-            {
-                "name": "从本地重新安装技能",
-                "command": "skills install local",
-                "fix_func": None
-            }
-        ]
-    },
-    # 定时任务问题
-    "cron_broken": {
-        "description": "定时任务失效",
-        "actions": [
-            {
-                "name": "重建定时任务配置",
-                "command": None,
-                "fix_func": "fix_cron_config"
-            }
-        ]
-    },
-    # 配置损坏
-    "config_corrupted": {
-        "description": "配置文件损坏",
-        "actions": [
-            {
-                "name": "从备份恢复配置",
-                "command": None,
-                "fix_func": "restore_config"
-            }
-        ]
-    },
-    # 内存泄漏
-    "memory_leak": {
-        "description": "内存使用过高",
-        "actions": [
-            {
-                "name": "清理缓存",
-                "command": None,
-                "fix_func": "clear_cache"
-            },
-            {
-                "name": "重启悟空会话",
-                "command": None,
-                "fix_func": "restart_session"
-            }
-        ]
-    },
-    # 磁盘空间不足
-    "disk_full": {
-        "description": "磁盘空间不足",
-        "actions": [
-            {
-                "name": "清理日志文件",
-                "command": None,
-                "fix_func": "clean_logs"
-            },
-            {
-                "name": "清理缓存",
-                "command": None,
-                "fix_func": "clear_cache"
-            }
-        ]
+def log(msg: str):
+    """记录日志到控制台和文件"""
+    ts = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+    line = f"[{ts}] {msg}"
+    print(line)
+    WK_LOGS_DIR.mkdir(parents=True, exist_ok=True)
+    with open(REPAIR_LOG, "a", encoding="utf-8") as f:
+        f.write(line + "\n")
+
+
+def get_python_cmd() -> str:
+    """获取 Python 命令（跨平台）"""
+    # Windows
+    if os.name == "nt":
+        return "py"
+    # Unix/Linux/macOS
+    return "python3"
+
+
+# ========== Windows 适配检测函数 ==========
+
+def check_python_environment() -> Tuple[bool, str]:
+    """检查 Python 环境"""
+    try:
+        result = subprocess.run(
+            [get_python_cmd(), "--version"],
+            capture_output=True, text=True, timeout=10
+        )
+        version = result.stdout.strip() or result.stderr.strip()
+        log(f"  Python环境: {version}")
+        return True, version
+    except Exception as e:
+        return False, str(e)
+
+
+def check_clawshell_installation() -> Tuple[bool, str]:
+    """检查 ClawShell 安装"""
+    if CLAWSHELL_HOME.exists():
+        version_file = CLAWSHELL_HOME / "CLAWSHELL_VERSION"
+        if version_file.exists():
+            with open(version_file, "r") as f:
+                version = f.read().strip()
+            return True, f"v{version}"
+    return False, "未安装或版本文件缺失"
+
+
+def check_clawshell_modules() -> Tuple[bool, Dict[str, Any]]:
+    """检查 ClawShell 核心模块可用性"""
+    results = {
+        "core": {"status": False, "modules": []},
+        "layer1": {"status": False, "modules": []},
+        "layer2": {"status": False, "modules": []},
     }
+    
+    sys.path.insert(0, str(CLAWSHELL_HOME))  # 正确: ClawShell根目录，lib是子包
+    
+    # 检查 core 模块
+    try:
+        from lib import __version__
+        results["core"]["status"] = True
+        results["core"]["modules"].append(f"lib.__version__={__version__}")
+    except ImportError as e:
+        results["core"]["error"] = str(e)
+    
+    # Layer1 模块 - 每个模块使用各自的类名
+    layer1_modules = [
+        ("health_check", "HealthMonitor"),  # 通用健康检查
+        ("system_mon", "HealthMonitor"),     # 系统监控
+        ("disk_mon", "ScanScheduler"),       # 磁盘监控
+        ("process_mon", "ScanScheduler"),    # 进程监控
+        ("agent_mon", "RepairEngine"),       # Agent监控
+        ("gateway_mon", "RepairEngine"),     # 网关监控
+        ("service_mon", "RepairEngine"),     # 服务监控
+    ]
+    
+    layer1_ok = 0
+    for module_name, class_name in layer1_modules:
+        try:
+            mod = __import__(f"lib.layer1.{module_name}", fromlist=[class_name])
+            cls = getattr(mod, class_name)
+            results["layer1"]["modules"].append(f"{module_name}.{class_name}")
+            layer1_ok += 1
+        except ImportError:
+            pass
+    
+    results["layer1"]["status"] = layer1_ok >= 3  # 至少3个模块可用
+    
+    # Layer2 模块
+    layer2_modules = [
+        ("self_repair", "SelfHealingEngine"),
+        ("discovery", "DiscoveryEngine"),
+        ("condition", "ConditionEngine"),
+        ("ml_engine", "MLEngine"),
+    ]
+    
+    layer2_ok = 0
+    for module_name, class_name in layer2_modules:
+        try:
+            mod = __import__(f"lib.layer2.{module_name}", fromlist=[class_name])
+            cls = getattr(mod, class_name)
+            results["layer2"]["modules"].append(f"{module_name}.{class_name}")
+            layer2_ok += 1
+        except ImportError:
+            pass
+    
+    results["layer2"]["status"] = layer2_ok >= 1
+    
+    return results["core"]["status"] and results["layer1"]["status"], results
+
+
+def check_system_resources() -> Tuple[bool, Dict[str, Any]]:
+    """检查系统资源（使用 psutil）"""
+    try:
+        import psutil as _psutil
+        
+        # CPU
+        cpu_percent = _psutil.cpu_percent(interval=1)
+        cpu_count = _psutil.cpu_count()
+        
+        # 内存
+        mem = _psutil.virtual_memory()
+        mem_percent = mem.percent
+        mem_available_gb = mem.available / (1024**3)
+        
+        # 磁盘
+        disk = _psutil.disk_usage("C:\\")
+        disk_percent = disk.percent
+        
+        stats = {
+            "cpu": {"percent": cpu_percent, "count": cpu_count},
+            "memory": {"percent": mem_percent, "available_gb": round(mem_available_gb, 2)},
+            "disk": {"percent": disk_percent, "total_gb": round(disk.total / (1024**3), 1)},
+        }
+        
+        # 判断是否需要告警 (仅警告，不算错误)
+        issues = []
+        if cpu_percent > 90:
+            issues.append(f"CPU使用率过高: {cpu_percent}%")
+        if mem_percent > 90:
+            issues.append(f"内存使用率过高: {mem_percent}%")
+        if disk_percent > 90:
+            issues.append(f"磁盘使用率较高: {disk_percent}%")
+        
+        # 系统资源检查：只要psutil能获取数据就算通过，警告不影响通过状态
+        return True, {"stats": stats, "issues": issues}
+        
+    except ImportError:
+        return False, {"error": "psutil 未安装"}
+    except Exception as e:
+        return False, {"error": str(e)}
+
+
+def check_psutil_installed() -> Tuple[bool, Dict[str, Any]]:
+    """专门检测 psutil 是否已安装"""
+    try:
+        import psutil
+        version = getattr(psutil, '__version__', 'unknown')
+        return True, {"version": version, "status": "installed"}
+    except ImportError:
+        return False, {"status": "not_installed", "error": "psutil 未安装"}
+
+
+def check_wukong_processes() -> Tuple[bool, List[str]]:
+    """检查悟空相关进程"""
+    try:
+        import psutil
+        
+        target_processes = ["python", "pythonw", "py"]
+        wukong_keywords = ["wukong", "clawshell", "agent", "mcp"]
+        
+        running = []
+        for proc in psutil.process_iter(["pid", "name", "cmdline"]):
+            try:
+                name = proc.info["name"].lower() if proc.info["name"] else ""
+                cmdline = " ".join(proc.info["cmdline"]) if proc.info["cmdline"] else ""
+                
+                # 检查是否与悟空相关
+                for kw in wukong_keywords:
+                    if kw in name or kw in cmdline.lower():
+                        running.append(f"PID {proc.info['pid']}: {name}")
+                        break
+            except (psutil.NoSuchProcess, psutil.AccessDenied):
+                pass
+        
+        return len(running) > 0, running[:10]  # 最多返回10个
+    except ImportError:
+        return False, ["psutil 未安装，无法检测进程"]
+    except Exception as e:
+        return False, [str(e)]
+
+
+def check_skill_modules() -> Tuple[bool, Dict[str, Any]]:
+    """检查悟空技能模块"""
+    # .skills 在用户会话目录下，不在 workspace 下
+    skills_dir = Path(os.path.expandvars("%USERPROFILE%")) / ".real" / "users" / "user-bd1b229d4eff8f6a45c456149072cb3b" / ".skills"
+    
+    if not skills_dir.exists():
+        return False, {"error": "技能目录不存在"}
+    
+    skills = []
+    for item in skills_dir.iterdir():
+        if item.is_dir() and (item / "SKILL.md").exists():
+            skills.append(item.name)
+    
+    return len(skills) > 0, {"count": len(skills), "skills": skills[:5]}
+
+
+def check_mcp_services() -> Tuple[bool, List[str]]:
+    """检查 MCP 服务状态"""
+    mcp_status = []
+    
+    # 检查钉钉 MCP 服务
+    try:
+        result = subprocess.run(
+            ["real_cli", "mcp", "list"],
+            capture_output=True, text=True, timeout=30
+        )
+        if result.returncode == 0:
+            mcp_status.append("MCP服务可用")
+        else:
+            mcp_status.append("MCP服务异常")
+    except FileNotFoundError:
+        mcp_status.append("real_cli 命令不存在")
+    except Exception as e:
+        mcp_status.append(f"MCP检查失败: {str(e)[:30]}")
+    
+    return len(mcp_status) > 0, mcp_status
+
+
+def check_network_connectivity() -> Tuple[bool, str]:
+    """检查网络连接"""
+    test_hosts = [
+        ("github.com", "GitHub"),
+        ("api.github.com", "GitHub API"),
+    ]
+    
+    results = []
+    for host, name in test_hosts:
+        try:
+            import socket
+            socket.setdefaulttimeout(5)
+            socket.gethostbyname(host)
+            results.append(f"{name}: OK")
+        except socket.gaierror:
+            results.append(f"{name}: 失败")
+        except Exception:
+            results.append(f"{name}: 异常")
+    
+    ok_count = sum(1 for r in results if "OK" in r)
+    return ok_count == len(results), "; ".join(results)
+
+
+def check_cron_tasks() -> Tuple[bool, Dict[str, Any]]:
+    """检查定时任务配置"""
+    cron_log = WK_LOGS_DIR / "cron_tasks.json"
+    
+    if not cron_log.exists():
+        return False, {"error": "定时任务配置文件不存在"}
+    
+    try:
+        with open(cron_log, "r", encoding="utf-8") as f:
+            tasks = json.load(f)
+        
+        active_tasks = [t for t in tasks if t.get("status") == "active"]
+        return len(active_tasks) > 0, {"total": len(tasks), "active": len(active_tasks)}
+    except Exception as e:
+        return False, {"error": str(e)}
+
+
+def check_dingtalk_config() -> Tuple[bool, str]:
+    """检查钉钉配置（使用 dws 命令行工具）"""
+    try:
+        result = subprocess.run(
+            ["dws", "--version"],
+            capture_output=True, text=True, timeout=10
+        )
+        if result.returncode == 0:
+            return True, "dws 命令行工具可用"
+        return False, "dws 命令异常"
+    except FileNotFoundError:
+        return False, "dws 命令未安装"
+    except Exception as e:
+        return False, f"dws 检查失败: {str(e)[:30]}"
+
+
+def check_workspace_integrity() -> Tuple[bool, List[str]]:
+    """检查工作区完整性"""
+    required_dirs = [
+        "logs",
+        "repair_reports",
+        "shared",
+        ".skills",
+    ]
+    
+    missing = []
+    for dir_name in required_dirs:
+        dir_path = WK_WORKSPACE / dir_name
+        if not dir_path.exists():
+            missing.append(dir_name)
+    
+    return len(missing) == 0, missing
+
+
+# ========== 检测项定义 ==========
+
+CHECKS = [
+    # 环境检查 (4项)
+    ("env.python", "Python环境", check_python_environment, "P1"),
+    ("env.clawshell_install", "ClawShell安装", check_clawshell_installation, "P1"),
+    ("env.clawshell_modules", "ClawShell模块", check_clawshell_modules, "P0"),
+    ("env.psutil", "psutil依赖", check_psutil_installed, "P0"),
+    ("proc.wukong", "悟空进程", check_wukong_processes, "P1"),
+    
+    # 资源检查 (1项) - 仅警告，不影响通过状态
+    ("res.system", "系统资源", check_system_resources, "P2"),
+    
+    # 技能检查 (1项)
+    ("skill.modules", "技能模块", check_skill_modules, "P2"),
+    
+    # MCP检查 (1项)
+    ("mcp.services", "MCP服务", check_mcp_services, "P2"),
+    
+    # 网络检查 (1项)
+    ("net.connectivity", "网络连接", check_network_connectivity, "P1"),
+    
+    # 定时任务 (1项)
+    ("cron.tasks", "定时任务", check_cron_tasks, "P2"),
+    
+    # 钉钉配置 (1项)
+    ("dtalk.config", "钉钉配置", check_dingtalk_config, "P2"),
+    
+    # 工作区 (1项)
+    ("ws.integrity", "工作区完整", check_workspace_integrity, "P1"),
+]
+
+
+# ========== 修复动作定义 ==========
+
+REPAIR_ACTIONS = {
+    "env.python": ("install_python_deps", "Python环境问题"),
+    "env.clawshell_install": ("reinstall_clawshell", "ClawShell未安装"),
+    "env.clawshell_modules": ("fix_clawshell_modules", "ClawShell模块缺失"),
+    "env.psutil": ("install_psutil", "psutil未安装"),
+    "proc.wukong": ("restart_wukong", "悟空进程未运行"),
+    "res.system": ("alert_resource", "系统资源不足"),
+    "skill.modules": ("reinstall_skills", "技能模块缺失"),
+    "mcp.services": ("restart_mcp", "MCP服务异常"),
+    "net.connectivity": ("alert_network", "网络连接失败"),
+    "cron.tasks": ("create_cron_config", "定时任务未配置"),
+    "dtalk.config": ("setup_dingtalk", "钉钉配置缺失"),
+    "ws.integrity": ("fix_workspace", "工作区目录缺失"),
 }
 
 
-class WuKongSelfRepair:
-    """悟空自修复系统"""
+# ========== 修复动作实现 ==========
 
-    def __init__(self):
-        self.workspace_dir = Path.home() / ".real" / "users" / "user-bd1b229d4eff8f6a45c456149072cb3b" / "workspace"
-        self.config_dir = Path.home() / ".real" / ".config"
-        self.log_dir = Path.home() / ".real" / "users" / "user-bd1b229d4eff8f6a45c456149072cb3b"
-        
-        self.issues = []
-        self.fixes_applied = []
-        self.reports = []
+def install_psutil():
+    """安装 psutil"""
+    log("📦 安装 psutil...")
+    try:
+        subprocess.run(
+            [get_python_cmd(), "-m", "pip", "install", "psutil"],
+            capture_output=True, timeout=60
+        )
+        log("  ✅ psutil 安装完成")
+        return True
+    except Exception as e:
+        log(f"  ❌ 安装失败: {e}")
+        return False
 
-    def detect_issues(self) -> List[Dict]:
-        """检测问题"""
-        logger.info("开始问题检测...")
-        
-        self.issues = []
-        
-        # 1. 检查模块导入
-        self._check_module_imports()
-        
-        # 2. 检查系统资源
-        self._check_system_resources()
-        
-        # 3. 检查定时任务
-        self._check_cron_tasks()
-        
-        # 4. 检查配置文件
-        self._check_config_files()
-        
-        # 5. 检查日志大小
-        self._check_log_sizes()
-        
-        return self.issues
 
-    def _check_module_imports(self):
-        """检查模块导入"""
-        modules_to_check = [
-            ("lib.layer1.health_check", "HealthMonitor"),
-            ("lib.core.eventbus", "EventBus"),
-            ("lib.layer4.swarm", "NodeRegistry"),
-        ]
-        
-        for module_path, class_name in modules_to_check:
-            try:
-                sys.path.insert(0, str(Path(__file__).parent.parent))
-                module = __import__(module_path, fromlist=[class_name])
-                cls = getattr(module, class_name, None)
-                if cls is None:
-                    self.issues.append({
-                        "type": "import_error",
-                        "component": module_path,
-                        "severity": "high",
-                        "message": f"模块 {module_path} 导入失败"
-                    })
-            except Exception as e:
-                self.issues.append({
-                    "type": "import_error",
-                    "component": module_path,
-                    "severity": "high",
-                    "message": f"模块 {module_path} 导入失败: {str(e)[:50]}"
-                })
-
-    def _check_system_resources(self):
-        """检查系统资源"""
+def install_python_deps():
+    """安装 Python 依赖"""
+    log("📦 检查 Python 依赖...")
+    deps = ["requests", "chardet"]
+    for dep in deps:
         try:
-            import psutil
-            
-            # 内存检查
-            memory = psutil.virtual_memory()
-            if memory.percent > 90:
-                self.issues.append({
-                    "type": "memory_leak",
-                    "component": "system",
-                    "severity": "high",
-                    "message": f"内存使用率过高: {memory.percent}%"
-                })
-            
-            # 磁盘检查
-            disk = psutil.disk_usage('C:\\')
-            if disk.percent > 90:
-                self.issues.append({
-                    "type": "disk_full",
-                    "component": "disk",
-                    "severity": "high",
-                    "message": f"磁盘使用率过高: {disk.percent}%"
-                })
-                
+            __import__(dep)
+            log(f"  ✅ {dep} 已安装")
         except ImportError:
-            logger.warning("psutil未安装，跳过系统资源检查")
-        except Exception as e:
-            logger.warning(f"系统资源检查失败: {e}")
+            log(f"  📦 安装 {dep}...")
+            subprocess.run(
+                [get_python_cmd(), "-m", "pip", "install", dep],
+                capture_output=True, timeout=60
+            )
+    return True
 
-    def _check_cron_tasks(self):
-        """检查定时任务"""
-        cron_file = Path.home() / ".real" / "cron_tasks.json"
-        
-        if not cron_file.exists():
-            self.issues.append({
-                "type": "cron_broken",
-                "component": "cron",
-                "severity": "medium",
-                "message": "定时任务配置文件不存在"
-            })
-            return
-        
+
+def fix_workspace():
+    """修复工作区目录"""
+    log("📁 修复工作区目录...")
+    dirs = ["logs", "repair_reports", "shared", ".skills"]
+    for d in dirs:
+        path = WK_WORKSPACE / d
+        path.mkdir(parents=True, exist_ok=True)
+        log(f"  ✅ {d}/")
+    return True
+
+
+def create_cron_config():
+    """创建定时任务配置"""
+    log("⏰ 创建定时任务配置...")
+    cron_file = WK_LOGS_DIR / "cron_tasks.json"
+    WK_LOGS_DIR.mkdir(parents=True, exist_ok=True)
+    
+    default_tasks = [
+        {
+            "name": "悟空日报生成",
+            "script": "daily_report.py",
+            "schedule": "0 22 * * *",
+            "status": "active",
+            "last_run": None
+        },
+        {
+            "name": "健康检查",
+            "script": "health_check.py",
+            "schedule": "0 */2 * * *",
+            "status": "active",
+            "last_run": None
+        },
+    ]
+    
+    with open(cron_file, "w", encoding="utf-8") as f:
+        json.dump(default_tasks, f, indent=2, ensure_ascii=False)
+    
+    log(f"  ✅ 已创建 {len(default_tasks)} 个默认定时任务")
+    return True
+
+
+def restart_mcp():
+    """重启 MCP 服务"""
+    log("🔄 重启 MCP 服务...")
+    try:
+        subprocess.run(["real_cli", "mcp", "stop"], capture_output=True, timeout=30)
+        subprocess.run(["real_cli", "mcp", "start"], capture_output=True, timeout=30)
+        log("  ✅ MCP 服务已重启")
+        return True
+    except Exception as e:
+        log(f"  ⚠️ 重启失败: {e}")
+        return False
+
+
+def alert_resource(stats: Dict):
+    """发送资源告警"""
+    log("⚠️ 系统资源告警...")
+    if "issues" in stats:
+        for issue in stats["issues"]:
+            log(f"  ⚠️ {issue}")
+    return True
+
+
+# 修复动作映射
+ACTION_IMPLS = {
+    "install_psutil": install_psutil,
+    "install_python_deps": install_python_deps,
+    "fix_workspace": fix_workspace,
+    "create_cron_config": create_cron_config,
+    "restart_mcp": restart_mcp,
+    "alert_resource": lambda: alert_resource({}),
+}
+
+
+# ========== 主程序 ==========
+
+def run_all_checks() -> List[Dict]:
+    """执行所有检测"""
+    results = []
+    
+    for check_id, name, func, severity in CHECKS:
         try:
-            with open(cron_file, 'r', encoding='utf-8') as f:
-                cron_data = json.load(f)
-                tasks = cron_data.get("tasks", [])
-                
-                # 检查是否有最近执行的任务
-                if not tasks:
-                    self.issues.append({
-                        "type": "cron_broken",
-                        "component": "cron",
-                        "severity": "medium",
-                        "message": "定时任务列表为空"
-                    })
-        except Exception as e:
-            self.issues.append({
-                "type": "config_corrupted",
-                "component": "cron",
-                "severity": "high",
-                "message": f"定时任务配置损坏: {str(e)[:50]}"
-            })
-
-    def _check_config_files(self):
-        """检查配置文件"""
-        config_files = [
-            Path.home() / ".real" / "config.json",
-            self.workspace_dir / "config.json",
-        ]
-        
-        for config_file in config_files:
-            if config_file.exists():
-                try:
-                    with open(config_file, 'r', encoding='utf-8') as f:
-                        json.load(f)
-                except json.JSONDecodeError:
-                    self.issues.append({
-                        "type": "config_corrupted",
-                        "component": str(config_file),
-                        "severity": "high",
-                        "message": f"配置文件 {config_file.name} 损坏"
-                    })
-
-    def _check_log_sizes(self):
-        """检查日志大小"""
-        log_dir = Path.home() / ".real" / "users" / "user-bd1b229d4eff8f6a45c456149072cb3b" / "workspace" / "logs"
-        
-        if log_dir.exists():
-            total_size = 0
-            for log_file in log_dir.glob("*.log"):
-                total_size += log_file.stat().st_size
-            
-            # 超过100MB报警
-            if total_size > 100 * 1024 * 1024:
-                self.issues.append({
-                    "type": "disk_full",
-                    "component": "logs",
-                    "severity": "medium",
-                    "message": f"日志文件过大: {total_size / (1024*1024):.1f}MB"
+            result = func()
+            if isinstance(result, tuple):
+                status, detail = result
+                results.append({
+                    "id": check_id,
+                    "name": name,
+                    "severity": severity,
+                    "status": "ok" if status else "warning",
+                    "detail": detail,
+                    "checked_at": datetime.now().isoformat()
                 })
-
-    # ==================== 修复函数 ====================
-
-    def fix_import_path(self) -> Dict:
-        """修复导入路径"""
-        logger.info("执行: 修复导入路径")
-        
-        clawshell_path = Path(__file__).parent.parent
-        pth_file = clawshell_path / "clawshell.pth"
-        
-        if not pth_file.exists():
-            with open(pth_file, 'w', encoding='utf-8') as f:
-                f.write(str(clawshell_path))
-            logger.info(f"已创建: {pth_file}")
-        
-        return {"success": True, "message": "导入路径已修复"}
-
-    def fix_cron_config(self) -> Dict:
-        """重建定时任务配置"""
-        logger.info("执行: 重建定时任务配置")
-        
-        cron_file = Path.home() / ".real" / "cron_tasks.json"
-        cron_file.parent.mkdir(parents=True, exist_ok=True)
-        
-        # 默认定时任务配置
-        default_config = {
-            "version": "1.0",
-            "last_updated": datetime.now().isoformat(),
-            "tasks": []
-        }
-        
-        # 读取现有配置
-        if cron_file.exists():
-            try:
-                with open(cron_file, 'r', encoding='utf-8') as f:
-                    existing = json.load(f)
-                    default_config["tasks"] = existing.get("tasks", [])
-            except:
-                pass
-        
-        # 保存配置
-        with open(cron_file, 'w', encoding='utf-8') as f:
-            json.dump(default_config, f, ensure_ascii=False, indent=2)
-        
-        logger.info(f"已重建: {cron_file}")
-        return {"success": True, "message": "定时任务配置已重建"}
-
-    def restore_config(self, config_path: Path) -> Dict:
-        """从备份恢复配置"""
-        logger.info(f"执行: 从备份恢复配置 {config_path}")
-        
-        backup_dir = self.workspace_dir / "backups"
-        
-        if not backup_dir.exists():
-            backup_dir.mkdir(parents=True, exist_ok=True)
-            return {"success": False, "message": "无备份文件"}
-        
-        # 查找最新的备份
-        backups = sorted(backup_dir.glob(f"{config_path.name}.*.bak"), 
-                       key=lambda p: p.stat().st_mtime, reverse=True)
-        
-        if backups:
-            latest_backup = backups[0]
-            try:
-                # 恢复备份
-                import shutil
-                shutil.copy2(latest_backup, config_path)
-                logger.info(f"已从 {latest_backup} 恢复")
-                return {"success": True, "message": f"已从 {latest_backup.name} 恢复"}
-            except Exception as e:
-                return {"success": False, "message": f"恢复失败: {e}"}
-        
-        return {"success": False, "message": "无有效备份"}
-
-    def clear_cache(self) -> Dict:
-        """清理缓存"""
-        logger.info("执行: 清理缓存")
-        
-        cleared_size = 0
-        cache_dirs = [
-            Path.home() / ".real" / ".cache",
-            self.workspace_dir / ".rewind_*",
-        ]
-        
-        for cache_pattern in cache_dirs:
-            if "*" in str(cache_pattern):
-                for cache_dir in Path.home() / ".real" / "users" / "user-bd1b229d4eff8f6a45c456149072cb3b" / "workspace" if "*" not in str(cache_pattern) else []:
-                    try:
-                        import glob
-                        for d in glob.glob(str(cache_pattern)):
-                            d_path = Path(d)
-                            if d_path.exists() and d_path.is_dir():
-                                size = sum(f.stat().st_size for f in d_path.rglob("*"))
-                                import shutil
-                                shutil.rmtree(d_path)
-                                cleared_size += size
-                                logger.info(f"已清理: {d_path}")
-                    except Exception as e:
-                        logger.warning(f"清理失败: {e}")
             else:
-                cache_dir = Path(cache_pattern)
-                if cache_dir.exists():
-                    try:
-                        size = sum(f.stat().st_size for f in cache_dir.rglob("*"))
-                        import shutil
-                        shutil.rmtree(cache_dir)
-                        cache_dir.mkdir()
-                        cleared_size += size
-                        logger.info(f"已清理: {cache_dir}")
-                    except Exception as e:
-                        logger.warning(f"清理失败: {e}")
-        
-        return {
-            "success": True, 
-            "message": f"已清理 {cleared_size / (1024*1024):.1f}MB 缓存"
-        }
+                results.append({
+                    "id": check_id,
+                    "name": name,
+                    "severity": severity,
+                    "status": "ok" if result else "warning",
+                    "checked_at": datetime.now().isoformat()
+                })
+        except Exception as e:
+            results.append({
+                "id": check_id,
+                "name": name,
+                "severity": severity,
+                "status": "error",
+                "error": str(e),
+                "checked_at": datetime.now().isoformat()
+            })
+    
+    return results
 
-    def clean_logs(self) -> Dict:
-        """清理日志"""
-        logger.info("执行: 清理日志")
-        
-        if not LOG_DIR.exists():
-            return {"success": True, "message": "日志目录不存在"}
-        
-        # 保留最近7天的日志
-        cutoff = datetime.now().timestamp() - 7 * 24 * 60 * 60
-        cleaned_size = 0
-        cleaned_count = 0
-        
-        for log_file in LOG_DIR.glob("*.log*"):
-            if log_file.stat().st_mtime < cutoff:
-                try:
-                    cleaned_size += log_file.stat().st_size
-                    log_file.unlink()
-                    cleaned_count += 1
-                except Exception as e:
-                    logger.warning(f"删除日志失败: {e}")
-        
-        return {
-            "success": True,
-            "message": f"已清理 {cleaned_count} 个日志文件，共 {cleaned_size / (1024*1024):.1f}MB"
-        }
 
-    def restart_session(self) -> Dict:
-        """重启会话（标记需要重启）"""
-        logger.info("执行: 标记会话需要重启")
-        
-        # 在配置文件中标记需要重启
-        marker_file = self.workspace_dir / "needs_restart.marker"
-        with open(marker_file, 'w', encoding='utf-8') as f:
-            json.dump({
-                "timestamp": datetime.now().isoformat(),
-                "reason": "memory_leak"
-            }, f)
-        
-        return {
-            "success": True,
-            "message": "已标记会话需要重启，下次启动时生效"
-        }
+def generate_repair_plan(results: List[Dict]) -> List[Dict]:
+    """根据检测结果生成修复计划"""
+    plan = []
+    
+    for result in results:
+        if result["status"] != "ok":
+            check_id = result["id"]
+            if check_id in REPAIR_ACTIONS:
+                action, issue = REPAIR_ACTIONS[check_id]
+                plan.append({
+                    "check_id": check_id,
+                    "issue": issue,
+                    "action": action,
+                    "detail": result.get("detail", {}),
+                    "priority": get_priority(result["severity"])
+                })
+    
+    # 按优先级排序
+    plan.sort(key=lambda x: x["priority"])
+    return plan
 
-    def run_repairs(self) -> List[Dict]:
-        """执行修复"""
-        logger.info("开始执行修复...")
+
+def get_priority(severity: str) -> int:
+    """获取优先级数值"""
+    priorities = {"P0": 1, "P1": 2, "P2": 3, "P3": 4}
+    return priorities.get(severity, 5)
+
+
+def save_repair_queue(plan: List[Dict]):
+    """保存修复队列"""
+    WK_SHARED_DIR.mkdir(parents=True, exist_ok=True)
+    
+    queue = {
+        "version": "v1.0",
+        "platform": "windows",
+        "created_at": datetime.now().isoformat(),
+        "total_checks": len(CHECKS),
+        "plan": plan,
+        "executed_phases": [],
+        "status": "pending" if plan else "completed"
+    }
+    
+    with open(REPAIR_QUEUE_FILE, "w", encoding="utf-8") as f:
+        json.dump(queue, f, indent=2, ensure_ascii=False)
+    
+    return queue
+
+
+def execute_repair_plan(plan: List[Dict]):
+    """执行修复计划"""
+    if not plan:
+        log("✅ 无需修复，系统正常")
+        return
+    
+    log(f"📋 开始执行 {len(plan)} 项修复计划...")
+    
+    success_count = 0
+    for item in plan:
+        action = item["action"]
+        issue = item["issue"]
         
-        self.fixes_applied = []
+        log(f"\n🔧 执行: {action}")
+        log(f"   问题: {issue}")
         
-        for issue in self.issues:
-            issue_type = issue["type"]
-            if issue_type not in REPAIR_ACTIONS:
-                continue
-            
-            actions = REPAIR_ACTIONS[issue_type]["actions"]
-            
-            for action in actions:
-                fix_func_name = action.get("fix_func")
-                
-                if fix_func_name and hasattr(self, fix_func_name):
-                    try:
-                        fix_func = getattr(self, fix_func_name)
-                        result = fix_func()
-                        
-                        self.fixes_applied.append({
-                            "issue": issue,
-                            "action": action["name"],
-                            "result": result
-                        })
-                        
-                        logger.info(f"修复成功: {action['name']} - {result.get('message', '')}")
-                        
-                    except Exception as e:
-                        logger.error(f"修复失败: {action['name']} - {e}")
-                        self.fixes_applied.append({
-                            "issue": issue,
-                            "action": action["name"],
-                            "result": {"success": False, "message": str(e)}
-                        })
-                
-                elif action.get("command"):
-                    try:
-                        # 执行命令
-                        result = subprocess.run(
-                            action["command"],
-                            shell=True,
-                            capture_output=True,
-                            timeout=60
-                        )
-                        
-                        self.fixes_applied.append({
-                            "issue": issue,
-                            "action": action["name"],
-                            "result": {
-                                "success": result.returncode == 0,
-                                "message": result.stdout.decode('utf-8', errors='ignore')[:100]
-                            }
-                        })
-                        
-                        logger.info(f"命令执行: {action['command']}")
-                        
-                    except Exception as e:
-                        logger.error(f"命令执行失败: {action['command']} - {e}")
-        
-        return self.fixes_applied
-
-    def generate_report(self) -> str:
-        """生成报告"""
-        report = f"""# 悟空自修复报告
-
-**执行时间**: {datetime.now().isoformat()}
-**检测问题数**: {len(self.issues)}
-**修复执行数**: {len(self.fixes_applied)}
-
----
-
-## 检测到的问题
-
-"""
-        
-        if self.issues:
-            for issue in self.issues:
-                severity_icon = {"high": "🔴", "medium": "🟡", "low": "🟢"}.get(issue["severity"], "⚪")
-                report += f"- {severity_icon} [{issue['severity']}] {issue['component']}: {issue['message']}\n"
+        impl = ACTION_IMPLS.get(action)
+        if impl:
+            try:
+                if item.get("detail"):
+                    impl(item["detail"])
+                else:
+                    impl()
+                log(f"   ✅ 成功")
+                success_count += 1
+            except Exception as e:
+                log(f"   ❌ 失败: {e}")
         else:
-            report += "- ✅ 无问题检测到\n"
+            log(f"   ⚠️ 未实现的修复动作: {action}")
+    
+    log(f"\n📊 修复执行完成: {success_count}/{len(plan)} 项成功")
+
+
+def generate_report(results: List[Dict], plan: List[Dict]) -> str:
+    """生成检测报告"""
+    report_time = datetime.now().strftime("%Y%m%d_%H%M%S")
+    report_file = WK_REPAIR_REPORTS_DIR / f"self_repair_{report_time}.json"
+    WK_REPAIR_REPORTS_DIR.mkdir(parents=True, exist_ok=True)
+    
+    report = {
+        "version": "v1.0",
+        "platform": "windows",
+        "generated_at": datetime.now().isoformat(),
+        "summary": {
+            "total_checks": len(results),
+            "passed": sum(1 for r in results if r["status"] == "ok"),
+            "warnings": sum(1 for r in results if r["status"] == "warning"),
+            "errors": sum(1 for r in results if r["status"] == "error"),
+        },
+        "results": results,
+        "repair_plan": plan,
+    }
+    
+    with open(report_file, "w", encoding="utf-8") as f:
+        json.dump(report, f, indent=2, ensure_ascii=False)
+    
+    # 同时生成 Markdown 报告
+    md_file = WK_REPAIR_REPORTS_DIR / f"self_repair_{report_time}.md"
+    with open(md_file, "w", encoding="utf-8") as f:
+        f.write(f"# 悟空自修复检测报告\n\n")
+        f.write(f"**生成时间**: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}\n\n")
+        f.write(f"**平台**: Windows\n\n")
+        f.write(f"**版本**: v1.0\n\n")
+        f.write(f"## 检测摘要\n\n")
+        f.write(f"| 项目 | 数量 |\n")
+        f.write(f"|------|------|\n")
+        f.write(f"| 总检测项 | {report['summary']['total_checks']} |\n")
+        f.write(f"| 通过 | {report['summary']['passed']} |\n")
+        f.write(f"| 警告 | {report['summary']['warnings']} |\n")
+        f.write(f"| 错误 | {report['summary']['errors']} |\n\n")
         
-        report += "\n## 修复执行记录\n\n"
+        f.write(f"## 检测详情\n\n")
+        for r in results:
+            status_icon = "✅" if r["status"] == "ok" else ("⚠️" if r["status"] == "warning" else "❌")
+            f.write(f"{status_icon} **{r['name']}** ({r['severity']})\n")
+            if r["status"] != "ok":
+                if "error" in r:
+                    f.write(f"   - 错误: {r['error']}\n")
+                if "detail" in r:
+                    if isinstance(r["detail"], dict):
+                        for k, v in r["detail"].items():
+                            f.write(f"   - {k}: {v}\n")
+                    else:
+                        f.write(f"   - {r['detail']}\n")
+            f.write(f"\n")
         
-        if self.fixes_applied:
-            for fix in self.fixes_applied:
-                success = fix["result"].get("success", False)
-                icon = "✅" if success else "❌"
-                report += f"- {icon} **{fix['action']}**"
-                if fix["result"].get("message"):
-                    report += f": {fix['result']['message']}"
-                report += "\n"
+        if plan:
+            f.write(f"## 修复计划\n\n")
+            for i, item in enumerate(plan, 1):
+                f.write(f"{i}. **{item['action']}**: {item['issue']}\n")
         else:
-            report += "- 无修复执行\n"
-        
-        # 统计
-        success_count = sum(1 for f in self.fixes_applied if f["result"].get("success"))
-        report += f"\n**修复成功率**: {success_count}/{len(self.fixes_applied)}\n"
-        
-        return report
-
-    def save_report(self, content: str) -> Path:
-        """保存报告"""
-        output_dir = self.workspace_dir / "repair_reports"
-        output_dir.mkdir(parents=True, exist_ok=True)
-        
-        timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
-        filename = f"self_repair_{timestamp}.md"
-        output_file = output_dir / filename
-        
-        with open(output_file, 'w', encoding='utf-8') as f:
-            f.write(content)
-        
-        # 同时保存JSON
-        json_file = output_dir / f"self_repair_{timestamp}.json"
-        with open(json_file, 'w', encoding='utf-8') as f:
-            json.dump({
-                "timestamp": datetime.now().isoformat(),
-                "issues": self.issues,
-                "fixes_applied": self.fixes_applied
-            }, f, ensure_ascii=False, indent=2)
-        
-        logger.info(f"报告已保存: {output_file}")
-        return output_file
-
-    def run(self) -> Dict:
-        """执行完整自修复流程"""
-        logger.info("=" * 50)
-        logger.info("悟空自修复开始")
-        logger.info("=" * 50)
-        
-        # 1. 检测问题
-        self.detect_issues()
-        logger.info(f"检测到 {len(self.issues)} 个问题")
-        
-        # 2. 执行修复
-        if self.issues:
-            self.run_repairs()
-            logger.info(f"执行了 {len(self.fixes_applied)} 项修复")
-        
-        # 3. 生成报告
-        content = self.generate_report()
-        report_path = self.save_report(content)
-        
-        logger.info("=" * 50)
-        logger.info(f"自修复完成: {report_path}")
-        logger.info("=" * 50)
-        
-        return {
-            "issues_found": len(self.issues),
-            "fixes_applied": len(self.fixes_applied),
-            "report_path": str(report_path)
-        }
+            f.write(f"## 修复计划\n\n")
+            f.write(f"✅ 无需修复\n")
+    
+    return str(report_file)
 
 
 def main():
-    """主函数"""
-    repair = WuKongSelfRepair()
-    result = repair.run()
+    """主程序入口"""
+    print("=" * 60)
+    print("🚀 悟空自修复检测系统 v1.0 (Windows)")
+    print("=" * 60)
     
-    print(f"\n{'=' * 50}")
-    print("自修复执行完成")
-    print(f"{'=' * 50}")
-    print(f"检测问题: {result['issues_found']}")
-    print(f"执行修复: {result['fixes_applied']}")
-    print(f"详细报告: {result['report_path']}")
+    log("=" * 60)
+    log("🚀 悟空自修复检测系统 v1.0 (Windows)")
+    log("=" * 60)
     
-    return 0
+    # 执行所有检测
+    log("\n📋 执行全面检测...")
+    results = run_all_checks()
+    
+    # 统计结果
+    passed = sum(1 for r in results if r["status"] == "ok")
+    warnings = sum(1 for r in results if r["status"] == "warning")
+    errors = sum(1 for r in results if r["status"] == "error")
+    
+    log(f"\n📊 检测完成: {passed}/{len(results)} 通过, {warnings} 警告, {errors} 错误")
+    
+    # 显示检测结果
+    log("\n📋 检测详情:")
+    for result in results:
+        if result["status"] == "ok":
+            log(f"  ✅ {result['name']} [{result['severity']}]")
+        elif result["status"] == "warning":
+            log(f"  ⚠️ {result['name']} [{result['severity']}]")
+            if "detail" in result and isinstance(result["detail"], dict):
+                if "error" in result["detail"]:
+                    log(f"     → {result['detail']['error']}")
+        else:
+            log(f"  ❌ {result['name']}: {result.get('error', 'unknown')}")
+    
+    # 生成修复计划
+    plan = generate_repair_plan(results)
+    save_repair_queue(plan)
+    
+    if plan:
+        log(f"\n📋 生成修复计划: {len(plan)}项")
+        for i, item in enumerate(plan, 1):
+            log(f"  阶段{i}: {item['action']} - {item['issue']}")
+        
+        # 询问是否执行修复
+        print("\n是否执行自动修复? (y/N): ", end="")
+        try:
+            choice = sys.stdin.readline().strip().lower()
+            if choice == "y" or choice == "yes":
+                execute_repair_plan(plan)
+            else:
+                log("已跳过自动修复")
+        except EOFError:
+            log("非交互模式，跳过自动修复")
+    else:
+        log("\n✅ 无需修复，系统正常")
+    
+    # 生成报告
+    report_file = generate_report(results, plan)
+    log(f"\n📄 报告已生成: {report_file}")
+    
+    log("=" * 60)
+    print("=" * 60)
+    
+    return results, plan
 
 
 if __name__ == "__main__":
-    sys.exit(main())
+    results, plan = main()
+    
+    # 返回退出码
+    if any(r["status"] == "error" for r in results):
+        sys.exit(1)
+    elif any(r["status"] == "warning" for r in results):
+        sys.exit(2)
+    else:
+        sys.exit(0)

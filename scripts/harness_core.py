@@ -21,7 +21,7 @@ from pathlib import Path
 from typing import Optional, Dict, Any, List, Tuple
 
 # 配置
-OPENCLAW_DIR = Path(os.path.expanduser("~/.openclaw"))
+OPENCLAW_DIR = Path(os.path.expanduser("~/.real"))
 SKILLS_DIR = OPENCLAW_DIR / "workspace" / "skills"
 CONFIG_FILE = OPENCLAW_DIR / ".auto_trigger_config.json"
 FEEDBACK_FILE = OPENCLAW_DIR / "logs" / "skill_feedback.jsonl"

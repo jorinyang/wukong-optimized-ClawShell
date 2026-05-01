@@ -16,7 +16,7 @@ from pathlib import Path
 
 # ============ 配置 ============
 
-DAG_STATE_PATH = Path("~/.openclaw/.dag_state.json").expanduser()
+DAG_STATE_PATH = Path("~/.real/.dag_state.json").expanduser()
 
 
 # ============ 数据结构 ============

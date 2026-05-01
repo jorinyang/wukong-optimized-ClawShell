@@ -16,8 +16,8 @@ from typing import Dict, List, Optional, Any
 from dataclasses import dataclass, asdict
 
 # 配置
-AGENT_STATUS_FILE = os.path.expanduser("~/.openclaw/shared/agent-status.json")
-LOCK_FILE = os.path.expanduser("~/.openclaw/shared/.agent-status.lock")
+AGENT_STATUS_FILE = os.path.expanduser("~/.real/shared/agent-status.json")
+LOCK_FILE = os.path.expanduser("~/.real/shared/.agent-status.lock")
 
 # Agent配置
 AGENT_CONFIG = {

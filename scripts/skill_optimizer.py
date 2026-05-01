@@ -24,7 +24,7 @@ logging.basicConfig(
     level=logging.INFO,
     format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
     handlers=[
-        logging.FileHandler(Path("~/.openclaw/logs/skill_optimizer.log").expanduser()),
+        logging.FileHandler(Path("~/.real/logs/skill_optimizer.log").expanduser()),
         logging.StreamHandler(sys.stdout)
     ]
 )
@@ -35,10 +35,10 @@ class SkillOptimizer:
     """技能优化器"""
     
     def __init__(self):
-        self.skills_dir = Path("~/.openclaw/skills").expanduser()
-        self.archive_dir = Path("~/.openclaw/skills/archived").expanduser()
-        self.ab_test_dir = Path("~/.openclaw/skills/ab_tests").expanduser()
-        self.feedback_file = Path("~/.openclaw/logs/skill_feedback.jsonl").expanduser()
+        self.skills_dir = Path("~/.real/skills").expanduser()
+        self.archive_dir = Path("~/.real/skills/archived").expanduser()
+        self.ab_test_dir = Path("~/.real/skills/ab_tests").expanduser()
+        self.feedback_file = Path("~/.real/logs/skill_feedback.jsonl").expanduser()
         
         # 确保目录存在
         self.archive_dir.mkdir(parents=True, exist_ok=True)

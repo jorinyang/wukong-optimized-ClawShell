@@ -11,7 +11,7 @@ from pathlib import Path
 from typing import Dict, Tuple, List
 import argparse
 
-OPENCLAW_DIR = Path(os.path.expanduser("~/.openclaw"))
+OPENCLAW_DIR = Path(os.path.expanduser("~/.real"))
 CONFIG_FILE = OPENCLAW_DIR / ".conversation_end_config.json"
 SESSION_DIR = OPENCLAW_DIR / "agents/main/sessions"
 LAST_ACTIVITY_FILE = OPENCLAW_DIR / ".session_last_activity.json"

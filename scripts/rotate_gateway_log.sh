@@ -2,8 +2,10 @@
 # 日志轮转脚本
 # 功能：当日志文件超过阈值时自动归档
 
-LOG_FILE="${CLAWSHELL_HOME:-$HOME/.clawshell}/logs/gateway.err.log"
-LOG_DIR="${CLAWSHELL_HOME:-$HOME/.clawshell}/logs"
+# ClawShell运行时路径
+CLAWSHELL_RUNTIME="${CLAWSHELL_HOME:-$HOME/.real}"
+LOG_FILE="${CLAWSHELL_RUNTIME}/users/user-bd1b229d4eff8f6a45c456149072cb3b/workspace/logs/gateway.err.log"
+LOG_DIR="${CLAWSHELL_RUNTIME}/users/user-bd1b229d4eff8f6a45c456149072cb3b/workspace/logs"
 MAX_SIZE_MB=50
 MAX_ARCHIVES=7
 

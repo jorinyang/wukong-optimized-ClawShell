@@ -19,7 +19,7 @@ echo "[W4] 消费Hermes洞察..."
 
 # 4. 统计本次复盘结果
 echo "[W4] 复盘统计..."
-INSIGHT_COUNT=$(ls -t ~/.openclaw/shared/hermes_insights/*.json 2>/dev/null | head -1 | xargs cat 2>/dev/null | \
+INSIGHT_COUNT=$(ls -t ~/.real/shared/hermes_insights/*.json 2>/dev/null | head -1 | xargs cat 2>/dev/null | \
   python3 -c "import sys,json; d=json.load(sys.stdin); print(len(d.get('suggestions',[])))" 2>/dev/null || echo "0")
 TASK_COUNT=$(cat ${CLAWSHELL_HOME:-$HOME/.clawshell}/workspace/shared/task-queue.json 2>/dev/null | \
   python3 -c "import sys,json; d=json.load(sys.stdin); tasks=d.get('tasks',[]);

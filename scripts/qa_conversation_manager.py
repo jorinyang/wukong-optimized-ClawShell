@@ -10,7 +10,7 @@ import uuid
 from datetime import datetime
 from pathlib import Path
 
-WORKSPACE = os.path.expanduser("~/.openclaw/workspace")
+WORKSPACE = os.path.expanduser("~/.real/workspace")
 SHARED_DIR = os.path.join(WORKSPACE, "shared")
 QA_DIR = os.path.join(SHARED_DIR, "qa")
 SESSIONS_DIR = os.path.join(QA_DIR, "sessions")

@@ -36,7 +36,7 @@ class StrategyRegistry:
         all_strategies = registry.list_strategies()
     """
     
-    def __init__(self, base_path: str = "~/.openclaw/strategies"):
+    def __init__(self, base_path: str = "~/.real/strategies"):
         self.base_path = Path(base_path).expanduser()
         self.base_path.mkdir(parents=True, exist_ok=True)
         

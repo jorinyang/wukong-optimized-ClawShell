@@ -22,7 +22,7 @@ import threading
 import signal
 
 # 配置
-BASE_DIR = Path(os.path.expanduser("~/.openclaw"))
+BASE_DIR = Path(os.path.expanduser("~/.real"))
 INBOX_DIR = BASE_DIR / "inbox"
 PENDING_DIR = INBOX_DIR / "pending"
 PROCESSING_DIR = INBOX_DIR / "processing"

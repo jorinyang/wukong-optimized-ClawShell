@@ -17,19 +17,19 @@ run_version_check() {
     log "========================================="
     
     log "1. 运行版本检测..."
-    python3 ~/.openclaw/scripts/openclaw_version_monitor.py >> "$LOG_FILE" 2>&1
+    python3 ~/.real/scripts/openclaw_version_monitor.py >> "$LOG_FILE" 2>&1
     
     log "2. 运行影响分析..."
-    python3 ~/.openclaw/scripts/openclaw_impact_analyzer.py >> "$LOG_FILE" 2>&1
+    python3 ~/.real/scripts/openclaw_impact_analyzer.py >> "$LOG_FILE" 2>&1
     
     log "3. 检查最新报告..."
-    if [ -f ~/.openclaw/.version_state.json ]; then
+    if [ -f ~/.real/.version_state.json ]; then
         log "✅ 版本报告已生成"
     else
         log "❌ 版本报告生成失败"
     fi
     
-    if [ -f ~/.openclaw/.impact_report.json ]; then
+    if [ -f ~/.real/.impact_report.json ]; then
         log "✅ 影响报告已生成"
     else
         log "❌ 影响报告生成失败"
@@ -63,7 +63,7 @@ check_services() {
     
     # 检查Python脚本
     for script in openclaw_version_monitor.py openclaw_impact_analyzer.py openclaw_adaptive_executor.py; do
-        if [ -f ~/.openclaw/scripts/$script ]; then
+        if [ -f ~/.real/scripts/$script ]; then
             log "✅ $script 存在"
         else
             log "❌ $script 缺失"

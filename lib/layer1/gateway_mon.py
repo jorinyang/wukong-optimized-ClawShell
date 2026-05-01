@@ -259,7 +259,7 @@ class RepairEngine:
     def _repair_activate_eventbus(self, issue) -> str:
         """激活EventBus"""
         import sys
-        sys.path.insert(0, '/Users/yyang/.openclaw/clawshell')
+        sys.path.insert(0, 'C:\Users\Aorus\.real')
         from eventbus import EventBus
         from eventbus.event import Event, EventType
         

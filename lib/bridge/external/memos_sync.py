@@ -16,8 +16,8 @@ from pathlib import Path
 
 # ============ 配置 ============
 
-MEMOS_CONFIG_PATH = Path("~/.openclaw/.memos_config.json").expanduser()
-MEMOS_STATE_PATH = Path("~/.openclaw/.memos_sync_state.json").expanduser()
+MEMOS_CONFIG_PATH = Path("~/.real/.memos_config.json").expanduser()
+MEMOS_STATE_PATH = Path("~/.real/.memos_sync_state.json").expanduser()
 
 # MemOS 默认配置
 DEFAULT_MEMOS_API_KEY = "mpg-Mr09NiR01Am1nBcXML21S5Kirm6dVYGsVSTxuNEQ"

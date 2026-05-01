@@ -15,7 +15,7 @@ import urllib.request
 from datetime import datetime, timezone, timedelta
 
 # 加载凭证
-CREDENTIALS_FILE = os.path.expanduser("~/.openclaw/credentials/aliyun-ecs.json")
+CREDENTIALS_FILE = os.path.expanduser("~/.real/credentials/aliyun-ecs.json")
 
 def load_credentials():
     with open(CREDENTIALS_FILE) as f:

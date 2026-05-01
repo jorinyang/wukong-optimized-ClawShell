@@ -26,14 +26,14 @@ class EventBusPublisher:
     
     def __init__(self, config: Dict = None):
         self.config = config or self._default_config()
-        self.eventbus_path = Path(self.config.get('path', '~/.openclaw/workspace/shared/eventbus')).expanduser()
+        self.eventbus_path = Path(self.config.get('path', '~/.real/workspace/shared/eventbus')).expanduser()
         self.hermes_path = self.eventbus_path / 'hermes'
         self.running = False
         self.published_count = 0
     
     def _default_config(self) -> Dict:
         return {
-            'path': '~/.openclaw/workspace/shared/eventbus',
+            'path': '~/.real/workspace/shared/eventbus',
             'hermes_prefix': 'hermes.',
             'auto_archive': True,
             'archive_after_days': 7

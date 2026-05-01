@@ -15,7 +15,7 @@ from datetime import datetime
 from typing import Optional, Dict, Any
 import argparse
 
-BASE_DIR = Path(os.path.expanduser("~/.openclaw"))
+BASE_DIR = Path(os.path.expanduser("~/.real"))
 INBOX_DIR = BASE_DIR / "inbox"
 PENDING_DIR = INBOX_DIR / "pending"
 

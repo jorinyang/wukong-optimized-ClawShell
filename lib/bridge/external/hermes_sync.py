@@ -16,9 +16,9 @@ from datetime import datetime
 
 # ============ 配置 ============
 
-HERMES_CONFIG_PATH = Path("~/.openclaw/.hermes_config.json").expanduser()
-HERMES_SHARED_PATH = Path("~/.openclaw/shared/hermes").expanduser()
-HERMES_SYNC_STATE_PATH = Path("~/.openclaw/.hermes_sync_state.json").expanduser()
+HERMES_CONFIG_PATH = Path("~/.real/.hermes_config.json").expanduser()
+HERMES_SHARED_PATH = Path("~/.real/shared/hermes").expanduser()
+HERMES_SYNC_STATE_PATH = Path("~/.real/.hermes_sync_state.json").expanduser()
 
 
 # ============ 数据结构 ============

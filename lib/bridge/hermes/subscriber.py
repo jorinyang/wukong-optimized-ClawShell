@@ -28,7 +28,7 @@ class EventBusSubscriber:
     
     def __init__(self, config: Dict = None):
         self.config = config or self._default_config()
-        self.eventbus_path = Path(self.config.get('path', '~/.openclaw/workspace/shared/eventbus')).expanduser()
+        self.eventbus_path = Path(self.config.get('path', '~/.real/workspace/shared/eventbus')).expanduser()
         self.patterns = self.config.get('patterns', ['*.json'])
         self.callbacks: List[Callable] = []
         self.observer: Optional[Observer] = None
@@ -37,7 +37,7 @@ class EventBusSubscriber:
     
     def _default_config(self) -> Dict:
         return {
-            'path': '~/.openclaw/workspace/shared/eventbus',
+            'path': '~/.real/workspace/shared/eventbus',
             'patterns': ['clawshell.*.json', '*.json'],
             'poll_interval': 1.0,  # 秒
             'batch_size': 10

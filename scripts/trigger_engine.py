@@ -26,7 +26,7 @@ logging.basicConfig(
     level=logging.INFO,
     format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
     handlers=[
-        logging.FileHandler(Path("~/.openclaw/logs/trigger_engine.log").expanduser()),
+        logging.FileHandler(Path("~/.real/logs/trigger_engine.log").expanduser()),
         logging.StreamHandler(sys.stdout)
     ]
 )
@@ -120,8 +120,8 @@ class TriggerEngine:
     """触发引擎"""
     
     def __init__(self):
-        self.skills_dir = Path("~/.openclaw/skills").expanduser()
-        self.trigger_log_file = Path("~/.openclaw/logs/trigger_events.jsonl").expanduser()
+        self.skills_dir = Path("~/.real/skills").expanduser()
+        self.trigger_log_file = Path("~/.real/logs/trigger_events.jsonl").expanduser()
         self.skills: Dict[str, SkillTrigger] = {}
         
         # 加载技能

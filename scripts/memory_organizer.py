@@ -19,7 +19,7 @@ from pathlib import Path
 from typing import Dict, Any, List, Optional
 
 # 配置
-OPENCLAW_DIR = Path(os.path.expanduser("~/.openclaw"))
+OPENCLAW_DIR = Path(os.path.expanduser("~/.real"))
 WORKSPACE_DIR = OPENCLAW_DIR / "workspace"
 MEMORY_DIR = WORKSPACE_DIR / "memory"
 DREAM_LOG = MEMORY_DIR / "dream-log.md"

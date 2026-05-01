@@ -18,7 +18,7 @@ from pathlib import Path
 
 # ============ 配置 ============
 
-PQ_STATE_PATH = Path("~/.openclaw/.pq_state.json").expanduser()
+PQ_STATE_PATH = Path("~/.real/.pq_state.json").expanduser()
 
 
 # ============ 数据结构 ============

@@ -15,8 +15,8 @@ from pathlib import Path
 
 # ============ 配置 ============
 
-TRUST_CONFIG_PATH = Path("~/.openclaw/.trust_config.json").expanduser()
-TRUST_STATE_PATH = Path("~/.openclaw/.trust_state.json").expanduser()
+TRUST_CONFIG_PATH = Path("~/.real/.trust_config.json").expanduser()
+TRUST_STATE_PATH = Path("~/.real/.trust_state.json").expanduser()
 
 
 # ============ 数据结构 ============

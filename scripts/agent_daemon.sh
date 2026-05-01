@@ -9,9 +9,11 @@ export HOME="$HOME"
 
 AGENTS=("lab" "dev" "doc" "pub" "lib" "dat")
 INTERVAL_MINUTES=25
-LOG_FILE="${CLAWSHELL_HOME:-$HOME/.clawshell}/workspace/shared/agent_daemon.log"
-PID_FILE="${CLAWSHELL_HOME:-$HOME/.clawshell}/workspace/shared/agent_daemon.pid"
-LOCK_FILE="${CLAWSHELL_HOME:-$HOME/.clawshell}/workspace/shared/agent_daemon.lock"
+# ClawShell运行时路径（用于日志/PID文件）
+CLAWSHELL_RUNTIME="${CLAWSHELL_HOME:-$HOME/.real}"
+LOG_FILE="${CLAWSHELL_RUNTIME}/users/user-bd1b229d4eff8f6a45c456149072cb3b/workspace/shared/agent_daemon.log"
+PID_FILE="${CLAWSHELL_RUNTIME}/users/user-bd1b229d4eff8f6a45c456149072cb3b/workspace/shared/agent_daemon.pid"
+LOCK_FILE="${CLAWSHELL_RUNTIME}/users/user-bd1b229d4eff8f6a45c456149072cb3b/workspace/shared/agent_daemon.lock"
 
 log() {
     echo "[$(date '+%Y-%m-%d %H:%M:%S')] $1" >> "$LOG_FILE"

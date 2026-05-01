@@ -22,7 +22,7 @@ ERROR_SUMMARY=$(cat ${CLAWSHELL_HOME:-$HOME/.clawshell}/workspace/shared/task-qu
 
 # 3. 查询Hermes最新洞察
 echo "[W3] 查询Hermes洞察..."
-HERMES_INSIGHT=$(ls -t ~/.openclaw/shared/hermes_insights/*.json 2>/dev/null | head -1 | xargs cat 2>/dev/null | \
+HERMES_INSIGHT=$(ls -t ~/.real/shared/hermes_insights/*.json 2>/dev/null | head -1 | xargs cat 2>/dev/null | \
   python3 -c "import sys,json; d=json.load(sys.stdin); print(d.get('context_injection','暂无洞察')[:200])" 2>/dev/null || echo "暂无洞察")
 
 # 4. 生成晚报内容

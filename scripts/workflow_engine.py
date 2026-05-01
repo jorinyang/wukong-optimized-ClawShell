@@ -16,7 +16,7 @@ from typing import Dict, List, Optional, Any, Callable
 from enum import Enum
 
 # 路径配置
-WORKSPACE = os.path.expanduser("~/.openclaw/workspace")
+WORKSPACE = os.path.expanduser("~/.real/workspace")
 SHARED_DIR = os.path.join(WORKSPACE, "shared")
 WORKFLOWS_DIR = os.path.join(SHARED_DIR, "workflows")
 WORKFLOW_STATE_FILE = os.path.join(SHARED_DIR, "workflow_states.json")

@@ -29,7 +29,7 @@ class PersistenceDetector:
     PERSISTENCE_LAYERS = {
         'genome': {
             'name': 'Genome',
-            'default_path': '~/.openclaw/genome/',
+            'default_path': '~/.real/genome/',
             'connection_type': 'file',
             'detect_file': 'genome.yaml'
         },
@@ -52,7 +52,7 @@ class PersistenceDetector:
         },
         'knowledge_graph': {
             'name': 'KnowledgeGraph',
-            'default_path': '~/.openclaw/workspace/shared/kg/',
+            'default_path': '~/.real/workspace/shared/kg/',
             'connection_type': 'file',
             'detect_file': 'graph.json'
         }

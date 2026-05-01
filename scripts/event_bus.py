@@ -16,7 +16,7 @@ from pathlib import Path
 from typing import Dict, List, Callable
 
 # 路径配置
-WORKSPACE = os.path.expanduser("~/.openclaw/workspace")
+WORKSPACE = os.path.expanduser("~/.real/workspace")
 SHARED_DIR = os.path.join(WORKSPACE, "shared")
 EVENTS_DIR = os.path.join(SHARED_DIR, "events")
 LOG_FILE = os.path.join(SHARED_DIR, "logs", "event_bus.log")

@@ -18,7 +18,7 @@ from typing import Dict, Any, Optional, List
 from contextlib import contextmanager
 
 # 路径配置
-WORKSPACE = os.path.expanduser("~/.openclaw/workspace")
+WORKSPACE = os.path.expanduser("~/.real/workspace")
 SHARED_DIR = os.path.join(WORKSPACE, "shared")
 CONTEXT_FILE = os.path.join(SHARED_DIR, "context.json")
 CONTEXT_LOCK = os.path.join(SHARED_DIR, "context.lock")

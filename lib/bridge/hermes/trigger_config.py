@@ -48,7 +48,7 @@ class TriggerConfig:
     
     def __init__(self, config_dir: str = None):
         self.config_dir = Path(config_dir or 
-                              '~/.openclaw/workspace/shared/hermes_bridge').expanduser()
+                              '~/.real/workspace/shared/hermes_bridge').expanduser()
         self.config_dir.mkdir(parents=True, exist_ok=True)
         
         self.rules_file = self.config_dir / 'trigger_rules.json'

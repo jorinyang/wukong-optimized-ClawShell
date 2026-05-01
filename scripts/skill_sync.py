@@ -26,7 +26,7 @@ logging.basicConfig(
     level=logging.INFO,
     format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
     handlers=[
-        logging.FileHandler(Path("~/.openclaw/logs/skill_sync.log").expanduser()),
+        logging.FileHandler(Path("~/.real/logs/skill_sync.log").expanduser()),
         logging.StreamHandler(sys.stdout)
     ]
 )
@@ -38,9 +38,9 @@ class SkillSync:
     
     def __init__(self):
         self.hermes_skills_dir = Path("~/.hermes/skills/generated").expanduser()
-        self.openclaw_skills_dir = Path("~/.openclaw/skills").expanduser()
-        self.sync_state_file = Path("~/.openclaw/.skill_sync_state.json").expanduser()
-        self.conflicts_dir = Path("~/.openclaw/skills/conflicts").expanduser()
+        self.openclaw_skills_dir = Path("~/.real/skills").expanduser()
+        self.sync_state_file = Path("~/.real/.skill_sync_state.json").expanduser()
+        self.conflicts_dir = Path("~/.real/skills/conflicts").expanduser()
         
         # 确保目录存在
         self.hermes_skills_dir.mkdir(parents=True, exist_ok=True)

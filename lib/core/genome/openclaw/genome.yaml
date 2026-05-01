@@ -60,7 +60,7 @@ knowledge:
   created_at: '2026-04-28T05:35:24.135935'
   updated_at: '2026-04-28T05:35:24.135939'
 - key: clawshell_onboarding_guide
-  value: ~/.openclaw/workspace/CLAWSHELL_ONBOARDING.md
+  value: ~/.real/workspace/CLAWSHELL_ONBOARDING.md
   category: documentation
   source: system_setup
   confidence: 1.0

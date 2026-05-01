@@ -10,7 +10,7 @@ import subprocess
 from datetime import datetime, timedelta
 from pathlib import Path
 
-WORKSPACE = os.path.expanduser("~/.openclaw/workspace")
+WORKSPACE = os.path.expanduser("~/.real/workspace")
 SHARED_DIR = os.path.join(WORKSPACE, "shared")
 REPORTS_DIR = os.path.join(SHARED_DIR, "reports")
 TEMPLATE_DIR = os.path.join(WORKSPACE, "templates")

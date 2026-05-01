@@ -17,7 +17,7 @@ import threading
 
 # ============ 配置 ============
 
-NODE_REGISTRY_PATH = Path("~/.openclaw/.node_registry.json").expanduser()
+NODE_REGISTRY_PATH = Path("~/.real/.node_registry.json").expanduser()
 HEARTBEAT_INTERVAL = 30  # 心跳间隔（秒）
 NODE_TIMEOUT = 120  # 节点超时（秒）
 

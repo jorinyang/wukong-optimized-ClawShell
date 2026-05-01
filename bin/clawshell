@@ -17,7 +17,17 @@
 
 set -e
 
-CLAWSHELL_ROOT="${CLAWSHELL_ROOT:-$HOME/.openclaw/clawshell_v1}"
+# ClawShell路径配置
+# 优先使用环境变量，否则指向ClawShell安装目录
+if [ -z "$CLAWSHELL_ROOT" ]; then
+    if [ -d "$HOME/.ClawShell" ]; then
+        CLAWSHELL_ROOT="$HOME/.ClawShell"
+    elif [ -d "/Users/$USER/.real/.ClawShell" ]; then
+        CLAWSHELL_ROOT="/Users/$USER/.real/.ClawShell"
+    else
+        CLAWSHELL_ROOT="$HOME/.ClawShell"
+    fi
+fi
 VERSION="1.0.0"
 
 # 颜色定义

@@ -19,7 +19,7 @@ from dataclasses import dataclass, asdict
 from enum import Enum
 
 # 加载 .env 配置
-ENV_FILE = os.path.expanduser("~/.openclaw/.env")
+ENV_FILE = os.path.expanduser("~/.real/.env")
 if os.path.exists(ENV_FILE):
     with open(ENV_FILE, 'r') as f:
         for line in f:
@@ -30,8 +30,8 @@ if os.path.exists(ENV_FILE):
 
 # ==================== 配置 ====================
 
-VERSION_STATE_FILE = "~/.openclaw/.version_state.json"
-LOG_FILE = "~/.openclaw/logs/version_monitor.log"
+VERSION_STATE_FILE = "~/.real/.version_state.json"
+LOG_FILE = "~/.real/logs/version_monitor.log"
 
 OPENCLAW_REPO = "openclaw/openclaw"
 GITHUB_API = "https://api.github.com/repos/{}/releases/latest"
@@ -76,13 +76,13 @@ DEPENDENCIES_CONFIG = {
     "openclaw-weixin": {
         "name": "WeChat Plugin",
         "type": "plugin",
-        "extension_path": "~/.openclaw/extensions/openclaw-weixin",
+        "extension_path": "~/.real/extensions/openclaw-weixin",
         "impact_areas": ["公众号消息", "自动回复", "内容发布"]
     },
     "openclaw-dingtalk": {
         "name": "DingTalk Plugin",
         "type": "plugin",
-        "extension_path": "~/.openclaw/extensions/dingtalk",
+        "extension_path": "~/.real/extensions/dingtalk",
         "impact_areas": ["钉钉消息", "待办管理", "日历集成"]
     }
 }

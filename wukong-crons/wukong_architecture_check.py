@@ -183,7 +183,7 @@ def check_external_openclaw() -> CheckResult:
     possible_paths = [
         os.path.join(CLAWSHELL_PATH, "bin", "openclaw.bat"),
         os.path.join(CLAWSHELL_PATH, "bin", "openclaw"),
-        os.path.expanduser("~/.openclaw/bin/openclaw"),
+        os.path.expanduser("~/.real/bin/openclaw"),
     ]
     
     openclaw_path = None

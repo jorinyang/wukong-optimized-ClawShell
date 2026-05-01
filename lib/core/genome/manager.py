@@ -48,8 +48,8 @@ class GenomeManager:
     
     def __init__(
         self,
-        base_path: str = "~/.openclaw/genome",
-        backup_path: str = "~/.openclaw/backups/genome",
+        base_path: str = "~/.real/genome",
+        backup_path: str = "~/.real/backups/genome",
     ):
         self.base_path = Path(base_path).expanduser()
         self.backup_path = Path(backup_path).expanduser()

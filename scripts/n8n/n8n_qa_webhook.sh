@@ -25,7 +25,7 @@ handle_qa_request() {
     
     # 调用问答系统
     log "调用知识问答系统..."
-    response=$(python3 ~/.openclaw/scripts/knowledge_qa.py "$question" 2>&1)
+    response=$(python3 ~/.real/scripts/knowledge_qa.py "$question" 2>&1)
     
     log "响应: $response"
     

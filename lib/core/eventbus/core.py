@@ -51,10 +51,10 @@ class EventBus:
     
     def __init__(
         self,
-        persistence_path: str = "~/.openclaw/eventbus/events",
+        persistence_path: str = "~/.real/eventbus/events",
         max_history: int = 10000,
         enable_dead_letter: bool = True,
-        dead_letter_path: str = "~/.openclaw/eventbus/dead_letter",
+        dead_letter_path: str = "~/.real/eventbus/dead_letter",
     ):
         self.persistence_path = Path(persistence_path).expanduser()
         self.persistence_path.mkdir(parents=True, exist_ok=True)

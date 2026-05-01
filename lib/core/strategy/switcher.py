@@ -42,8 +42,8 @@ class StrategySwitcher:
     
     def __init__(
         self,
-        strategies_path: str = "~/.openclaw/strategies",
-        config_path: str = "~/.openclaw/strategies/config.yaml",
+        strategies_path: str = "~/.real/strategies",
+        config_path: str = "~/.real/strategies/config.yaml",
     ):
         self.strategies_path = Path(strategies_path).expanduser()
         self.config_path = Path(config_path).expanduser()

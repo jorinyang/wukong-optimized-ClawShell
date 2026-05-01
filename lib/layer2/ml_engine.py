@@ -17,8 +17,8 @@ from pathlib import Path
 
 # ============ 配置 ============
 
-ML_STATE_PATH = Path("~/.openclaw/.ml_state.json").expanduser()
-ML_CONFIG_PATH = Path("~/.openclaw/.ml_config.json").expanduser()
+ML_STATE_PATH = Path("~/.real/.ml_state.json").expanduser()
+ML_CONFIG_PATH = Path("~/.real/.ml_config.json").expanduser()
 
 DEFAULT_WINDOW_SIZE = 30  # 统计窗口大小
 DEFAULT_ANOMALY_THRESHOLD = 3.0  # 异常阈值（标准差倍数）

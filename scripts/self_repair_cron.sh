@@ -3,7 +3,9 @@
 # 功能：设置每日凌晨5点检测 + 每10分钟执行修复
 
 CRON_USER="yangyang"
-OPENCLAW_SHARE="${CLAWSHELL_HOME:-$HOME/.clawshell}/workspace/shared"
+# ClawShell运行时路径
+CLAWSHELL_RUNTIME="${CLAWSHELL_HOME:-$HOME/.real}"
+OPENCLAW_SHARE="${CLAWSHELL_RUNTIME}/users/user-bd1b229d4eff8f6a45c456149072cb3b/workspace"
 
 # 检测器执行时间：每日凌晨5:00
 DETECTOR_CRON="0 5 * * * /usr/local/bin/python3 ${OPENCLAW_SHARE}/scripts/self_repair_detector.py >> ${OPENCLAW_SHARE}/logs/self_repair_detector.log 2>&1"

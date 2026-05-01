@@ -147,7 +147,7 @@ class TaskRegistry:
         pending_tasks = registry.list_tasks(status=TaskStatus.PENDING)
     """
     
-    def __init__(self, storage_path: str = "~/.openclaw/organizer/registry"):
+    def __init__(self, storage_path: str = "~/.real/organizer/registry"):
         import os
         from pathlib import Path
         

@@ -18,8 +18,8 @@ import urllib.error
 
 # ============ 配置 ============
 
-MARKET_CACHE_PATH = Path("~/.openclaw/.market_discovery_cache.json").expanduser()
-MARKET_CONFIG_PATH = Path("~/.openclaw/.market_config.json").expanduser()
+MARKET_CACHE_PATH = Path("~/.real/.market_discovery_cache.json").expanduser()
+MARKET_CONFIG_PATH = Path("~/.real/.market_config.json").expanduser()
 
 
 # ============ 数据结构 ============

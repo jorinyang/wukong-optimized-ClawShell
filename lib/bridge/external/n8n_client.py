@@ -19,8 +19,8 @@ import urllib.parse
 
 # ============ 配置 ============
 
-N8N_CONFIG_PATH = Path("~/.openclaw/.n8n_config.json").expanduser()
-N8N_STATE_PATH = Path("~/.openclaw/.n8n_state.json").expanduser()
+N8N_CONFIG_PATH = Path("~/.real/.n8n_config.json").expanduser()
+N8N_STATE_PATH = Path("~/.real/.n8n_state.json").expanduser()
 
 
 # ============ 数据结构 ============

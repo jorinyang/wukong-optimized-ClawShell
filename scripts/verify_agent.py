@@ -178,7 +178,7 @@ def verify_agent_capabilities():
     if percentage == 100:
         print("🎉 恭喜！所有能力已继承，可以开始执行任务！")
         print("\n📚 下一步:")
-        print("  1. 阅读传承文档: ~/.openclaw/workspace/CLAWSHELL_ONBOARDING.md")
+        print("  1. 阅读传承文档: ~/.real/workspace/CLAWSHELL_ONBOARDING.md")
         print("  2. 注册到系统: coordinator.register('your_id', 'your_type')")
         print("  3. 开始执行任务: market.fetch_next('your_id')")
         return True

@@ -14,7 +14,7 @@ from datetime import datetime
 from pathlib import Path
 
 # 路径配置
-WORKSPACE = os.path.expanduser("~/.openclaw/workspace")
+WORKSPACE = os.path.expanduser("~/.real/workspace")
 SHARED_DIR = os.path.join(WORKSPACE, "shared")
 HERMES_INSIGHTS = os.path.expanduser("~/.hermes/insights")
 OPENCLAW_INSIGHTS = os.path.join(SHARED_DIR, "hermes_insights")

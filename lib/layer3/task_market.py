@@ -282,7 +282,7 @@ class TaskMarket:
         self,
         node_registry: NodeRegistry,
         trust_manager=None,
-        persistence_path: str = "~/.openclaw/.task_market"
+        persistence_path: str = "~/.real/.task_market"
     ):
         self.node_registry = node_registry
         self.trust_manager = trust_manager

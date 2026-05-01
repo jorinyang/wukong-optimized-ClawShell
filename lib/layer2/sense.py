@@ -16,10 +16,10 @@ from pathlib import Path
 
 # ============ 配置 ============
 
-SENSE_CONFIG_PATH = Path("~/.openclaw/.sense_config.json").expanduser()
-SENSE_STATE_PATH = Path("~/.openclaw/.sense_state.json").expanduser()
-SKILLS_DIR = Path("~/.openclaw/skills").expanduser()
-SCRIPTS_DIR = Path("~/.openclaw/scripts").expanduser()
+SENSE_CONFIG_PATH = Path("~/.real/.sense_config.json").expanduser()
+SENSE_STATE_PATH = Path("~/.real/.sense_state.json").expanduser()
+SKILLS_DIR = Path("~/.real/skills").expanduser()
+SCRIPTS_DIR = Path("~/.real/scripts").expanduser()
 
 DEFAULT_SENSE_INTERVAL = 300  # 5分钟
 DEFAULT_TIMEOUT = 5  # 5秒超时
@@ -128,8 +128,8 @@ class SelfSenseEngine:
         """感知MCP服务状态"""
         # 扫描MCP相关配置
         mcp_configs = [
-            Path("~/.openclaw/config/mcp.json").expanduser(),
-            Path("~/.openclaw/config/mcp_settings.json").expanduser(),
+            Path("~/.real/config/mcp.json").expanduser(),
+            Path("~/.real/config/mcp_settings.json").expanduser(),
         ]
         
         for config_path in mcp_configs:

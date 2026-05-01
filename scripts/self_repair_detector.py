@@ -40,7 +40,7 @@ import subprocess
 from datetime import datetime
 from pathlib import Path
 
-WORKSPACE = os.path.expanduser("~/.openclaw/workspace")
+WORKSPACE = os.path.expanduser("~/.real/workspace")
 SHARED_DIR = os.path.join(WORKSPACE, "shared")
 REPAIR_QUEUE_FILE = os.path.join(SHARED_DIR, "repair_queue.json")
 REPAIR_LOG = os.path.join(SHARED_DIR, "logs", "self_repair.log")
@@ -187,7 +187,7 @@ def check_task_market():
 
 def check_gateway_log():
     """检查Gateway日志"""
-    log_file = os.path.expanduser("~/.openclaw/logs/gateway.err.log")
+    log_file = os.path.expanduser("~/.real/logs/gateway.err.log")
     if not os.path.exists(log_file):
         return True
     size_mb = os.path.getsize(log_file) / (1024 * 1024)
@@ -195,7 +195,7 @@ def check_gateway_log():
 
 def check_disk_space():
     """检查磁盘空间"""
-    workspace = os.path.expanduser("~/.openclaw")
+    workspace = os.path.expanduser("~/.real")
     result = subprocess.run(
         ["df", "-h", workspace],
         capture_output=True, text=True, timeout=5

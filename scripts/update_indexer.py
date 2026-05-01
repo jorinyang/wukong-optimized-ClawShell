@@ -8,7 +8,7 @@ Update Indexer - 自动更新Obsidian更新索引 v3.0
 4. 同步更新系统架构文档 (00-SYSTEM_ARCHITECTURE.md)
 
 用法：
-    python3 ~/.openclaw/scripts/update_indexer.py
+    python3 ~/.real/scripts/update_indexer.py
 """
 
 import os

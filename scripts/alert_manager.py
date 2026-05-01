@@ -15,7 +15,7 @@ from datetime import datetime, timedelta
 from typing import Dict, List, Optional
 
 # 路径配置
-WORKSPACE = os.path.expanduser("~/.openclaw/workspace")
+WORKSPACE = os.path.expanduser("~/.real/workspace")
 SHARED_DIR = os.path.join(WORKSPACE, "shared")
 ALERT_CONFIG_FILE = os.path.join(SHARED_DIR, "alert_config.json")
 ALERT_HISTORY_FILE = os.path.join(SHARED_DIR, "alert_history.json")

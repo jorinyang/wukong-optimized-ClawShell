@@ -16,8 +16,8 @@ from datetime import datetime
 
 # ============ 配置 ============
 
-OBSIDIAN_CONFIG_PATH = Path("~/.openclaw/.obsidian_config.json").expanduser()
-OBSIDIAN_STATE_PATH = Path("~/.openclaw/.obsidian_sync_state.json").expanduser()
+OBSIDIAN_CONFIG_PATH = Path("~/.real/.obsidian_config.json").expanduser()
+OBSIDIAN_STATE_PATH = Path("~/.real/.obsidian_sync_state.json").expanduser()
 
 # 默认 Obsidian 路径
 DEFAULT_OBSIDIAN_PATH = Path("~/Documents/Obsidian/OpenClaw").expanduser()

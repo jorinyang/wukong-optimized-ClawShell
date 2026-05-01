@@ -15,8 +15,8 @@ from pathlib import Path
 
 # ============ 配置 ============
 
-EVAL_STATE_PATH = Path("~/.openclaw/.strategy_eval_state.json").expanduser()
-EVAL_CONFIG_PATH = Path("~/.openclaw/.strategy_eval_config.json").expanduser()
+EVAL_STATE_PATH = Path("~/.real/.strategy_eval_state.json").expanduser()
+EVAL_CONFIG_PATH = Path("~/.real/.strategy_eval_config.json").expanduser()
 
 
 # ============ 数据结构 ============

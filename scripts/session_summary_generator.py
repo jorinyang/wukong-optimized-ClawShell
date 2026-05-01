@@ -11,7 +11,7 @@ from pathlib import Path
 from typing import Dict, List
 import argparse
 
-OPENCLAW_DIR = Path(os.path.expanduser("~/.openclaw"))
+OPENCLAW_DIR = Path(os.path.expanduser("~/.real"))
 SESSION_DIR = OPENCLAW_DIR / "agents/main/sessions"
 SUMMARY_OUTPUT_DIR = OPENCLAW_DIR / "inbox/session_summaries"
 SUMMARY_LOG = OPENCLAW_DIR / "workspace/memory/session-summary-log.md"

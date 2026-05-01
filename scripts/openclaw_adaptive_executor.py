@@ -19,9 +19,9 @@ from dataclasses import dataclass, asdict
 
 # ==================== 配置 ====================
 
-BACKUP_DIR = "~/.openclaw/backups"
-ADAPTER_STATE_FILE = "~/.openclaw/.adapter_state.json"
-LOG_FILE = "~/.openclaw/logs/adaptive_executor.log"
+BACKUP_DIR = "~/.real/backups"
+ADAPTER_STATE_FILE = "~/.real/.adapter_state.json"
+LOG_FILE = "~/.real/logs/adaptive_executor.log"
 
 # ==================== 数据类 ====================
 
@@ -55,7 +55,7 @@ class DirectoryAdapter:
     """目录适配器"""
     
     def __init__(self):
-        self.source_dir = "~/.openclaw"
+        self.source_dir = "~/.real"
         self.backup_dir = os.path.expanduser(BACKUP_DIR)
     
     def migrate_skills(self, old_path: str, new_path: str) -> AdaptationAction:
@@ -114,7 +114,7 @@ class ConfigAdapter:
     """配置适配器"""
     
     def __init__(self):
-        self.config_file = "~/.openclaw/openclaw.json"
+        self.config_file = "~/.real/openclaw.json"
         self.backup_dir = os.path.expanduser(BACKUP_DIR)
     
     def update_config(self, key: str, new_value: Any, config_path: str = None) -> AdaptationAction:
@@ -172,7 +172,7 @@ class SkillAdapter:
             # 触发技能同步
             subprocess.run([
                 "python3", 
-                "~/.openclaw/scripts/skill_sync.py"
+                "~/.real/scripts/skill_sync.py"
             ], capture_output=True)
         
         return AdaptationAction(
@@ -180,7 +180,7 @@ class SkillAdapter:
             type="skill",
             target="skills/",
             action="sync",
-            command="python3 ~/.openclaw/scripts/skill_sync.py",
+            command="python3 ~/.real/scripts/skill_sync.py",
             rollback_command=None,
             status="pending",
             executed_at=None,
@@ -200,7 +200,7 @@ class DependencyAdapter:
             type="dependency",
             target=dep_name,
             action="check",
-            command=f"python3 ~/.openclaw/scripts/openclaw_version_monitor.py",
+            command=f"python3 ~/.real/scripts/openclaw_version_monitor.py",
             rollback_command=None,
             status="pending",
             executed_at=None,
@@ -226,7 +226,7 @@ class AdaptiveExecutor:
     def generate_actions_from_impact_report(self, impact_report_path: str = None) -> List[AdaptationAction]:
         """从影响报告生成适配动作"""
         if impact_report_path is None:
-            impact_report_path = "~/.openclaw/.impact_report.json"
+            impact_report_path = "~/.real/.impact_report.json"
         
         actions = []
         report_path = os.path.expanduser(impact_report_path)
@@ -251,8 +251,8 @@ class AdaptiveExecutor:
                     if "skills" in areas:
                         actions.append(
                             self.dir_adapter.migrate_skills(
-                                "~/.openclaw/skills",
-                                "~/.openclaw/workspace/skills"
+                                "~/.real/skills",
+                                "~/.real/workspace/skills"
                             )
                         )
                 elif change_type == "INTERFACE":

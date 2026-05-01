@@ -210,7 +210,7 @@ class ConditionEngine:
     def __init__(
         self,
         eventbus=None,
-        persistence_path: str = "~/.openclaw/eventbus/conditions",
+        persistence_path: str = "~/.real/eventbus/conditions",
         check_interval: float = 5.0,
     ):
         self.eventbus = eventbus

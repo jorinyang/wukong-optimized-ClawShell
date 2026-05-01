@@ -16,11 +16,11 @@ from collections import defaultdict
 
 # ============ 配置 ============
 
-DISCOVERY_STATE_PATH = Path("~/.openclaw/.discovery_state.json").expanduser()
-SKILLS_DIR = Path("~/.openclaw/skills").expanduser()
-WORKSPACE_DIR = Path("~/.openclaw/workspace").expanduser()
-CONFIG_DIR = Path("~/.openclaw/config").expanduser()
-SCRIPTS_DIR = Path("~/.openclaw/scripts").expanduser()
+DISCOVERY_STATE_PATH = Path("~/.real/.discovery_state.json").expanduser()
+SKILLS_DIR = Path("~/.real/skills").expanduser()
+WORKSPACE_DIR = Path("~/.real/workspace").expanduser()
+CONFIG_DIR = Path("~/.real/config").expanduser()
+SCRIPTS_DIR = Path("~/.real/scripts").expanduser()
 
 
 # ============ 数据结构 ============
@@ -267,7 +267,7 @@ class DiscoveryEngine:
         """发现Agents"""
         capabilities = []
         
-        agents_dir = Path("~/.openclaw/agents").expanduser()
+        agents_dir = Path("~/.real/agents").expanduser()
         if not agents_dir.exists():
             return capabilities
         
@@ -357,7 +357,7 @@ class DiscoveryEngine:
         """发现Hooks"""
         capabilities = []
         
-        hooks_dir = Path("~/.openclaw/hooks").expanduser()
+        hooks_dir = Path("~/.real/hooks").expanduser()
         if not hooks_dir.exists():
             return capabilities
         
@@ -384,7 +384,7 @@ class DiscoveryEngine:
         """发现Cron任务"""
         capabilities = []
         
-        cron_dir = Path("~/.openclaw/cron").expanduser()
+        cron_dir = Path("~/.real/cron").expanduser()
         if not cron_dir.exists():
             return capabilities
         

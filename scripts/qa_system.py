@@ -12,7 +12,7 @@ from datetime import datetime
 
 # 添加脚本目录到路径
 SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
-WORKSPACE = os.path.expanduser("~/.openclaw/workspace")
+WORKSPACE = os.path.expanduser("~/.real/workspace")
 SHARED_DIR = os.path.join(WORKSPACE, "shared")
 
 from qa_conversation_manager import QAConversationManager

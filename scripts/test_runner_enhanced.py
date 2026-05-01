@@ -12,7 +12,7 @@ import time
 from datetime import datetime
 from pathlib import Path
 
-WORKSPACE = os.path.expanduser("~/.openclaw/workspace")
+WORKSPACE = os.path.expanduser("~/.real/workspace")
 SHARED_DIR = os.path.join(WORKSPACE, "shared")
 TEST_DIR = os.path.join(SHARED_DIR, "testsuites")
 REPORTS_DIR = os.path.join(SHARED_DIR, "reports", "test")

@@ -20,7 +20,7 @@ from contextlib import contextmanager
 from enum import Enum
 
 # 路径配置
-WORKSPACE = os.path.expanduser("~/.openclaw/workspace")
+WORKSPACE = os.path.expanduser("~/.real/workspace")
 SHARED_DIR = os.path.join(WORKSPACE, "shared")
 QUEUE_FILE = os.path.join(SHARED_DIR, "task-queue.json")
 MARKET_FILE = os.path.join(SHARED_DIR, "task-market.json")

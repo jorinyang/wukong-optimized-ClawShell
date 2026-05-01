@@ -21,7 +21,7 @@ from dataclasses import dataclass, asdict
 
 OPENCLAW_REPO = "openclaw/openclaw"
 GITHUB_API = "https://api.github.com/repos/{}/releases"
-CHANGELOG_CACHE = "~/.openclaw/.changelog_cache.json"
+CHANGELOG_CACHE = "~/.real/.changelog_cache.json"
 
 # ==================== 数据类 ====================
 
@@ -502,7 +502,7 @@ def main():
             print(f"  [{rec['priority']}] {rec['action']}: {rec['reason']}")
     
     # 保存JSON报告
-    report_file = "~/.openclaw/.impact_report.json"
+    report_file = "~/.real/.impact_report.json"
     os.makedirs(os.path.dirname(os.path.expanduser(report_file)), exist_ok=True)
     with open(os.path.expanduser(report_file), "w") as f:
         json.dump(asdict(report), f, ensure_ascii=False, indent=2)

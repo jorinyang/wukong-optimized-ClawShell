@@ -10,7 +10,7 @@ import os
 import subprocess
 from datetime import datetime
 
-WORKSPACE = os.path.expanduser("~/.openclaw/workspace")
+WORKSPACE = os.path.expanduser("~/.real/workspace")
 SHARED_DIR = os.path.join(WORKSPACE, "shared")
 REPAIR_QUEUE_FILE = os.path.join(SHARED_DIR, "repair_queue.json")
 REPAIR_LOG = os.path.join(SHARED_DIR, "logs", "self_repair.log")
@@ -220,7 +220,7 @@ def run_doctor():
         log("  ✅ LaunchAgent正常")
     
     # 3. 检查配置警告（简单检查gateway.err.log）
-    err_log = os.path.expanduser("~/.openclaw/logs/gateway.err.log")
+    err_log = os.path.expanduser("~/.real/logs/gateway.err.log")
     if os.path.exists(err_log):
         size_mb = os.path.getsize(err_log) / (1024*1024)
         if size_mb > 10:

@@ -17,10 +17,10 @@ from datetime import datetime
 
 # ============ 配置 ============
 
-HEALING_STATE_PATH = Path("~/.openclaw/.healing_state.json").expanduser()
-BACKUP_DIR = Path("~/.openclaw/backups").expanduser()
-CHECKPOINT_DIR = Path("~/.openclaw/checkpoints").expanduser()
-CONFIG_DIR = Path("~/.openclaw/config").expanduser()
+HEALING_STATE_PATH = Path("~/.real/.healing_state.json").expanduser()
+BACKUP_DIR = Path("~/.real/backups").expanduser()
+CHECKPOINT_DIR = Path("~/.real/checkpoints").expanduser()
+CONFIG_DIR = Path("~/.real/config").expanduser()
 
 
 # ============ 数据结构 ============
@@ -398,7 +398,7 @@ class ServiceSwitcher:
     
     def _load_config(self):
         """加载配置"""
-        config_path = Path("~/.openclaw/.service_config.json").expanduser()
+        config_path = Path("~/.real/.service_config.json").expanduser()
         if config_path.exists():
             try:
                 with open(config_path) as f:
@@ -411,7 +411,7 @@ class ServiceSwitcher:
     
     def _save_config(self):
         """保存配置"""
-        config_path = Path("~/.openclaw/.service_config.json").expanduser()
+        config_path = Path("~/.real/.service_config.json").expanduser()
         config = {
             "primary": self.primary_services,
             "backup": self.backup_services,

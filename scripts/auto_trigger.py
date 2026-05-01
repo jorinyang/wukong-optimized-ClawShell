@@ -23,7 +23,7 @@ logging.basicConfig(
     level=logging.INFO,
     format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
     handlers=[
-        logging.FileHandler(Path("~/.openclaw/logs/auto_trigger.log").expanduser()),
+        logging.FileHandler(Path("~/.real/logs/auto_trigger.log").expanduser()),
         logging.StreamHandler(sys.stdout)
     ]
 )
@@ -34,7 +34,7 @@ class AutoTriggerConfig:
     """自动触发配置"""
     
     def __init__(self):
-        self.config_file = Path("~/.openclaw/.auto_trigger_config.json").expanduser()
+        self.config_file = Path("~/.real/.auto_trigger_config.json").expanduser()
         self.config = self._load_config()
     
     def _load_config(self) -> Dict[str, Any]:
@@ -85,7 +85,7 @@ class FeedbackCollector:
     """反馈收集器"""
     
     def __init__(self):
-        self.feedback_file = Path("~/.openclaw/logs/skill_feedback.jsonl").expanduser()
+        self.feedback_file = Path("~/.real/logs/skill_feedback.jsonl").expanduser()
     
     def collect(self, skill_name: str, user_input: str, 
                 result: Dict[str, Any], user_feedback: Optional[str] = None) -> bool:

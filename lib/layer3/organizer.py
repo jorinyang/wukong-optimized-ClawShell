@@ -15,8 +15,8 @@ from pathlib import Path
 
 # ============ 配置 ============
 
-ECOLOGY_STATE_PATH = Path("~/.openclaw/.ecology_state.json").expanduser()
-NODES_DIR = Path("~/.openclaw/organizer/nodes").expanduser()
+ECOLOGY_STATE_PATH = Path("~/.real/.ecology_state.json").expanduser()
+NODES_DIR = Path("~/.real/organizer/nodes").expanduser()
 
 
 # ============ 数据结构 ============
